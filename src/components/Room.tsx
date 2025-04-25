@@ -15,14 +15,26 @@ export default function Room({...props}): JSX.Element {
   const targetPositionTwo = useRef(new THREE.Vector3(0, 0.583, 0))    // Second drawer
   const targetPositionThree = useRef(new THREE.Vector3(0, 0.167, 0))  // Third drawer
   const targetPositionFour = useRef(new THREE.Vector3(0, -0.25, 0))   // Bottom drawer
-  const isHovered = useRef(false)
-
+  const [us_ballAnimating, us_setBallAnimating] = useState(false)
+  const ballRef = useRef<THREE.Mesh>(null)
+  const ballVelocity = useRef({ x: 0, y: 0, z: 0 })
+  const ballStartPos = { x: -2, y: 1.02, z: -0.82 } // Original position
+  const gravity = -9.8
+  const bounceFactor = 0.6 // How much bounce (1 = perfect bounce, 0 = no bounce)
+  const floorY = 0.105 // Y position of floor + ball radius
+  const newspaperRef = useRef<THREE.Mesh>(null)
+  const newspaperRotation = useRef(0)
+  const [us_animationTriggered, us_setAnimationTriggered] = useState(false)
+  const [us_leftWindowOpen, us_setLeftWindowOpen] = useState(false)
+  const [us_rightWindowOpen, us_setRightWindowOpen] = useState(false)
+  const leftWindowRotation = useRef(0)
+  const rightWindowRotation = useRef(0)
   const COLOR_PALETTE = {
     'trueWhite': '#ffffff',
     'black': '#0f1626',
     'beige': '#ab987a',
     'white': '#f5f5f5',
-    'gray': 'aaaaaa',
+    'gray': '#aaaaaa',
     'orange': '#E16A54',
     'lightOrange': '#F39E60',
     'darkOrange': '#9F5255',
@@ -59,6 +71,24 @@ export default function Room({...props}): JSX.Element {
     }
   }
 
+  const handleLacrosseBallMouseOver = () => {
+    if (!us_ballAnimating && !us_animationTriggered) {
+      us_setAnimationTriggered(true)
+      us_setBallAnimating(true)
+      // Initial velocity when ball leaves stick
+      ballVelocity.current = { x: 0.5, y: -1, z: 0.3 }
+    }
+  }
+
+  const NewsPaperPage = forwardRef(({...props}, ref): JSX.Element => {
+    return (
+      <mesh ref={ref} {...props} dispose={null}>
+        <boxGeometry args={props.geometry} />
+        <meshPhongMaterial color={props.color} />
+      </mesh>
+    )
+  })
+
   useFrame((_, delta) => {
     if (drawerOneRef.current && targetPositionOne.current) {
       drawerOneRef.current.position.lerp(targetPositionOne.current, delta * 5)
@@ -71,6 +101,46 @@ export default function Room({...props}): JSX.Element {
     }
     if (drawerFourRef.current && targetPositionFour.current) {
       drawerFourRef.current.position.lerp(targetPositionFour.current, delta * 5)
+    }
+
+    if (us_ballAnimating && ballRef.current) {
+      // Update velocity with gravity
+      ballVelocity.current.y += gravity * delta
+
+      // Update position based on velocity
+      ballRef.current.position.x += ballVelocity.current.x * delta
+      ballRef.current.position.y += ballVelocity.current.y * delta
+      ballRef.current.position.z += ballVelocity.current.z * delta
+
+      // Check for floor collision
+      if (ballRef.current.position.y < floorY) {
+        ballRef.current.position.y = floorY // Prevent going through floor
+        
+        // Bounce with energy loss
+        if (Math.abs(ballVelocity.current.y) > 0.1) {
+          ballVelocity.current.y = -ballVelocity.current.y * bounceFactor
+          // Reduce horizontal velocity with each bounce (friction)
+          ballVelocity.current.x *= 0.9
+          ballVelocity.current.z *= 0.9
+        } else {
+          // Stop animation when ball nearly stops
+          us_setBallAnimating(false)
+          // Reset ball position
+          // ballRef.current.position.set(ballStartPos.x, ballStartPos.y, ballStartPos.z)
+        }
+      }
+
+      // Add rotation to the ball as it moves
+      ballRef.current.rotation.x += ballVelocity.current.x * delta * 2
+      ballRef.current.rotation.z += ballVelocity.current.z * delta * 2
+
+      if (newspaperRef.current) {
+        if (!(newspaperRotation.current < -1.7)) {
+          newspaperRotation.current -= ballVelocity.current.x * delta * 2
+          newspaperRef.current.rotation.set(newspaperRotation.current*2.4,0,0)
+        }
+      }
+
     }
   })
 
@@ -91,7 +161,7 @@ export default function Room({...props}): JSX.Element {
 
   const Sphere = ({...props}): JSX.Element => {
     return (
-      <mesh position={props.position} onClick={props.onClick ? props.onClick : null}>
+      <mesh position={props.position} onClick={props.onClick ? props.onClick : null} onPointerOver={props.onPointerOver ? props.onPointerOver : null}>
         <sphereGeometry args={props.radius}/>
         <meshPhongMaterial color={props.color} opacity={props.opacity} transparent={props.transparent} shininess={props.shininess} specular={props.specular}/>
       </mesh>
@@ -160,7 +230,49 @@ export default function Room({...props}): JSX.Element {
     bedShape.quadraticCurveTo(-0.75, 1.55, -0.75, 1.5);    // slight round corner
     bedShape.lineTo(-0.75, -1.5);
 
-  const bedExtrudeSettings = {
+  const coversShape = new THREE.Shape();
+    coversShape.moveTo(-0.75, -0.85);        // Left bottom corner
+    coversShape.quadraticCurveTo(-0.75, -0.9, -0.7, -0.9);     // Round corner
+    coversShape.lineTo(0.7, -0.9);           // Bottom edge
+    coversShape.quadraticCurveTo(0.75, -0.9, 0.75, -0.85);     // Round corner
+    coversShape.lineTo(0.75, 1.5);           // Right edge
+    coversShape.quadraticCurveTo(0.75, 1.55, 0.7, 1.55);       // Round corner
+    coversShape.lineTo(-0.7, 1.55);          // Top edge
+    coversShape.quadraticCurveTo(-0.75, 1.55, -0.75, 1.5);     // Round corner
+    coversShape.lineTo(-0.75, -0.85);        // Back to start
+
+  const coversExtrudeSettings: THREE.ExtrudeGeometryOptions = {
+    steps: 1,
+    depth: 0.4,
+    bevelEnabled: true,
+    bevelThickness: 0.05,
+    bevelSize: 0.08,
+    bevelOffset: 0,
+    bevelSegments: 3
+  };
+
+  const coverFoldShape = new THREE.Shape();
+    coverFoldShape.moveTo(-0.77, 0.85);      // Left bottom corner
+    coverFoldShape.quadraticCurveTo(-0.77, 0.8, -0.7, 0.8);    // Round corner
+    coverFoldShape.lineTo(0.7, 0.8);         // Bottom edge
+    coverFoldShape.quadraticCurveTo(0.77, 0.8, 0.77, 0.85);    // Round corner
+    coverFoldShape.lineTo(0.77, 1.1);        // Right edge
+    coverFoldShape.quadraticCurveTo(0.77, 1.15, 0.7, 1.15);    // Round corner
+    coverFoldShape.lineTo(-0.7, 1.15);       // Top edge
+    coverFoldShape.quadraticCurveTo(-0.77, 1.15, -0.77, 1.1);  // Round corner
+    coverFoldShape.lineTo(-0.77, 0.85);      // Back to start
+
+  const coverFoldSettings: THREE.ExtrudeGeometryOptions = {
+    steps: 1,
+    depth: 0.42,            // Match the covers depth
+    bevelEnabled: true,
+    bevelThickness: 0.05,  // Slightly thicker for folded appearance
+    bevelSize: 0.11,        // Larger bevel for softer edges
+    bevelOffset: 0,
+    bevelSegments: 3
+  };
+
+  const bedExtrudeSettings: THREE.ExtrudeGeometryOptions = {
     steps: 1,
     depth: 0.4,            // Make it thicker
     bevelEnabled: true,
@@ -425,7 +537,7 @@ export default function Room({...props}): JSX.Element {
           geometry: [0.5, 0.02, 0.5],
           color: COLOR_PALETTE.silver,
           rotation: [0, 0, 2*Math.PI/3],
-          onPointerOver: handleLaptopMouseOver
+          onPointerOver: !us_laptopOn ? handleLaptopMouseOver : undefined
         })}
         
         {/* Screen content */}
@@ -503,7 +615,7 @@ export default function Room({...props}): JSX.Element {
         {/* Drawer Back Inner Wall */}
         {Box({
           position: [0, 0.2, 0],
-          geometry: [0.05, 0.417, 1.4],
+          geometry: [0.05, 0.409, 1.4],
           color: COLOR_PALETTE.beige
         })}
         {/* Drawer Right Inner Wall */}
@@ -566,12 +678,342 @@ export default function Room({...props}): JSX.Element {
     )
   }
 
+  const LacrosseStick = ({...props}): JSX.Element => {
+    return (
+      <group position={props.position} rotation={props.rotation ? props.rotation : [0,0,0]}>
+        {/* Shaft */}
+        {Cylinder({
+          position: [0,-0.05,0],
+          radiusTop: 0.02,
+          radiusBottom: 0.02,
+          height: 1,
+          color: COLOR_PALETTE.silver
+        })}
+        {/* Butt */}
+        {Cylinder({
+          position: [0,-0.55,0],
+          radiusTop: 0.03,
+          radiusBottom: 0.03,
+          height: 0.02,
+          color: COLOR_PALETTE.white
+        })}
+        {/* Head */}
+        {Cylinder({
+          position: [0,0.45,0],
+          radiusTop: 0.025,
+          radiusBottom: 0.025,
+          height: 0.06,
+          color: COLOR_PALETTE.white
+        })}
+        {/* Top of Head */}
+        <mesh position={[0,0.8,0]} rotation={[0,0,1.8*Math.PI]}> 
+          <torusGeometry args={[0.15, 0.015, 10, 30, 1.4*Math.PI]}/> 
+          <meshPhongMaterial color={COLOR_PALETTE.white} />
+        </mesh>
+        {/* Right Sidewall */}
+        <mesh position={[-0.248,0.63,0]} rotation={[0,0,1.95*Math.PI]}> 
+          <torusGeometry args={[0.15, 0.015, 10, 30, Math.PI/4]}/> 
+          <meshPhongMaterial color={COLOR_PALETTE.white} />
+        </mesh>
+        {/* Left Sidewall */}
+        <mesh position={[0.25,0.635,0]} rotation={[0,0,2.83*Math.PI]}> 
+          <torusGeometry args={[0.15, 0.015, 10, 30, Math.PI/4]}/> 
+          <meshPhongMaterial color={COLOR_PALETTE.white} />
+        </mesh>
+        {/* Bottom */}
+        <mesh position={[0,0.58,0]} rotation={[0,0,2.83*Math.PI]}> 
+          <torusGeometry args={[0.11, 0.016, 10, 5, 1.3*Math.PI]}/> 
+          <meshPhongMaterial color={COLOR_PALETTE.white} />
+        </mesh>
+        {/* Mesh */}
+        <group position={[0, 0.15, 0]}>
+          {/* Center string */}
+          <mesh position={[0, -0.1, 0]}>
+            <tubeGeometry args={[
+              new THREE.CatmullRomCurve3([
+                new THREE.Vector3(0, 0.9, 0),
+                new THREE.Vector3(0, 0.8, 0.02),
+                new THREE.Vector3(0, 0.75, 0.09),
+                new THREE.Vector3(0, 0.71, 0.12),
+                new THREE.Vector3(0, 0.7, 0.12),
+                new THREE.Vector3(0, 0.6, 0.05),
+                new THREE.Vector3(0, 0.55, 0.04),
+                new THREE.Vector3(0, 0.5, 0.02),
+                new THREE.Vector3(0, 0.45, 0),
+              ]),
+              32, 0.01, 8, false
+            ]} />
+            <meshPhongMaterial color={COLOR_PALETTE.white} />
+          </mesh>
+          
+          {/* Left strings */}
+          {[-0.1, -0.05].map((xPos) => (
+            <mesh position={[xPos, -0.1, 0]} key={`left-string-${xPos}`}>
+              <tubeGeometry args={[
+                new THREE.CatmullRomCurve3([
+                  // new THREE.Vector3(0, 0.8, 0),
+                  new THREE.Vector3(0, 0.87, 0),
+                  new THREE.Vector3(0, 0.8, 0.02),
+                  new THREE.Vector3(0, 0.7, 0.09),
+                  new THREE.Vector3(0, 0.65, 0.09),
+                  new THREE.Vector3(0, 0.6, 0.05),
+                  new THREE.Vector3(0, 0.55, 0.03),
+                  new THREE.Vector3(0, 0.45, 0.015),
+                  // new THREE.Vector3(0, 0.45, 0),
+                ]),
+                32, 0.01, 8, false
+              ]} />
+              <meshPhongMaterial color={COLOR_PALETTE.white} />
+            </mesh>
+          ))}
+          
+          {/* Right strings */}
+          {[0.05, 0.1].map((xPos) => (
+            <mesh position={[xPos, -0.1, 0]} key={`right-string-${xPos}`}>
+              <tubeGeometry args={[
+                new THREE.CatmullRomCurve3([
+                  // new THREE.Vector3(0, 0.9, 0),
+                  new THREE.Vector3(0, 0.87, 0),
+                  new THREE.Vector3(0, 0.8, 0.025),
+                  new THREE.Vector3(0, 0.7, 0.09),
+                  new THREE.Vector3(0, 0.65, 0.09),
+                  new THREE.Vector3(0, 0.6, 0.05),
+                  new THREE.Vector3(0, 0.55, 0.03),
+                  new THREE.Vector3(0, 0.45, 0.015),
+                  // new THREE.Vector3(0, 0., 0),
+                ]),
+                32, 0.01, 8, false
+              ]} />
+              <meshPhongMaterial color={COLOR_PALETTE.white} />
+            </mesh>
+          ))}
+
+          {/* Shooter string */}
+          <mesh position={[0, 0, 0]}>
+            <tubeGeometry args={[
+              new THREE.CatmullRomCurve3([
+                new THREE.Vector3(-0.15, 0.65, 0.02),
+                new THREE.Vector3(-0.1, 0.65, 0.02),
+                new THREE.Vector3(-0.05, 0.65, 0.05),
+                new THREE.Vector3(0, 0.67, 0.05),
+                new THREE.Vector3(0.02, 0.67, 0.05),
+                new THREE.Vector3(0.05, 0.65, 0.05),
+                new THREE.Vector3(0.1, 0.65, 0.02),
+                new THREE.Vector3(0.15, 0.65, 0.02),
+              ]),
+              32, 0.01, 8, false
+            ]} />
+            <meshPhongMaterial color={COLOR_PALETTE.lightBlue} />
+          </mesh>
+          {/* Horizontal string */}
+          <mesh position={[0, 0, 0]}>
+            <tubeGeometry args={[
+              new THREE.CatmullRomCurve3([
+                new THREE.Vector3(-0.15, 0.60, 0.02),
+                new THREE.Vector3(-0.1, 0.60, 0.02),
+                new THREE.Vector3(-0.05, 0.60, 0.09),
+                new THREE.Vector3(0, 0.62, 0.09),
+                new THREE.Vector3(0.02, 0.62, 0.09),
+                new THREE.Vector3(0.05, 0.6, 0.09),
+                new THREE.Vector3(0.1, 0.6, 0.02),
+                new THREE.Vector3(0.15, 0.6, 0.02),
+              ]),
+              32, 0.01, 8, false
+            ]} />
+            <meshPhongMaterial color={COLOR_PALETTE.white} />
+          </mesh>
+          {/* Horizontal string */}
+          <mesh position={[0, 0, 0]}>
+            <tubeGeometry args={[
+              new THREE.CatmullRomCurve3([
+                new THREE.Vector3(-0.1, 0.55, 0.02),
+                new THREE.Vector3(-0.1, 0.55, 0.02),
+                new THREE.Vector3(-0.05, 0.55, 0.09),
+                new THREE.Vector3(0, 0.57, 0.09),
+                new THREE.Vector3(0.02, 0.57, 0.09),
+                new THREE.Vector3(0.05, 0.55, 0.09),
+                new THREE.Vector3(0.1, 0.55, 0.02),
+                new THREE.Vector3(0.1, 0.55, 0.02),
+              ]),
+              32, 0.01, 8, false
+            ]} />
+            <meshPhongMaterial color={COLOR_PALETTE.white} />
+          </mesh>
+          {/* Horizontal string */}
+          <mesh position={[0, 0, 0]}>
+            <tubeGeometry args={[
+              new THREE.CatmullRomCurve3([
+                new THREE.Vector3(-0.1, 0.5, 0.02),
+                new THREE.Vector3(-0.1, 0.5, 0.02),
+                new THREE.Vector3(-0.05, 0.5, 0.09),
+                new THREE.Vector3(0, 0.52, 0.09),
+                new THREE.Vector3(0.02, 0.52, 0.09),
+                new THREE.Vector3(0.05, 0.5, 0.09),
+                new THREE.Vector3(0.1, 0.5, 0.02),
+                new THREE.Vector3(0.1, 0.5, 0.02),
+              ]),
+              32, 0.01, 8, false
+            ]} />
+            <meshPhongMaterial color={COLOR_PALETTE.white} />
+          </mesh>
+          {/* Horizontal string */}
+          <mesh position={[0, 0, 0]}>
+            <tubeGeometry args={[
+              new THREE.CatmullRomCurve3([
+                new THREE.Vector3(-0.1, 0.45, 0.02),
+                new THREE.Vector3(-0.1, 0.45, 0.02),
+                new THREE.Vector3(-0.05, 0.45, 0.02),
+                new THREE.Vector3(0, 0.46, 0.03),
+                new THREE.Vector3(0.02, 0.46, 0.03),
+                new THREE.Vector3(0.05, 0.45, 0.03),
+                new THREE.Vector3(0.1, 0.45, 0.02),
+                new THREE.Vector3(0.1, 0.45, 0.02),
+              ]),
+              32, 0.01, 8, false
+            ]} />
+            <meshPhongMaterial color={COLOR_PALETTE.white} />
+          </mesh>
+        </group>
+      </group>
+    )
+  }
+
+  const WindowFrame = ({...props}): JSX.Element => {
+    const leftWindowRef = useRef<THREE.Group>(null)
+    const rightWindowRef = useRef<THREE.Group>(null)
+    const leftTargetRotation = useRef(0)
+    const rightTargetRotation = useRef(0)
+
+    useFrame((_, delta) => {
+      if (leftWindowRef.current) {
+        // Smoothly animate left window
+        leftWindowRotation.current += (leftTargetRotation.current - leftWindowRotation.current) * delta * 5
+        
+        // Snap to end positions when close
+        if (Math.abs(leftWindowRotation.current - Math.PI / 3) < 0.01) {
+          leftWindowRotation.current = Math.PI / 3
+        } else if (Math.abs(leftWindowRotation.current) < 0.01) {
+          leftWindowRotation.current = 0
+        }
+        
+        leftWindowRef.current.rotation.y = leftWindowRotation.current
+      }
+      
+      if (rightWindowRef.current) {
+        // Smoothly animate right window
+        rightWindowRotation.current += (rightTargetRotation.current - rightWindowRotation.current) * delta * 5
+        
+        // Snap to end positions when close
+        if (Math.abs(rightWindowRotation.current - Math.PI / 3) < 0.01) {
+          rightWindowRotation.current = Math.PI / 3
+        } else if (Math.abs(rightWindowRotation.current) < 0.01) {
+          rightWindowRotation.current = 0
+        }
+        
+        rightWindowRef.current.rotation.y = -rightWindowRotation.current
+      }
+    })
+
+    const handleWindowMouseOver = () => {
+      us_setRightWindowOpen(!us_rightWindowOpen)
+      us_setLeftWindowOpen(!us_leftWindowOpen)
+      rightTargetRotation.current = us_rightWindowOpen ? 0 : Math.PI / 3
+      leftTargetRotation.current = us_leftWindowOpen ? 0 : Math.PI / 3
+    }
+
+    return (
+      <group position={props.position} rotation={props.rotation}>
+        {/* Static frame parts */}
+        <mesh>
+          {/* Left frame */}
+          {Box({
+            position: [-0.75, 2.5, -2.5], 
+            geometry: [0.05, 1.5, 0.15], 
+            color: COLOR_PALETTE.white
+          })}
+          {/* Right frame */}
+          {Box({
+            position: [0.775, 2.5, -2.5], 
+            geometry: [0.05, 1.5, 0.15], 
+            color: COLOR_PALETTE.white
+          })}
+          {/* Top frame */}
+          {Box({
+            position: [0, 3.22, -2.5], 
+            geometry: [1.5, 0.06, 0.15], 
+            color: COLOR_PALETTE.white
+          })}
+        </mesh>
+
+        {/* Left window (animated) */}
+        <group ref={leftWindowRef} position={[-0.75, 2.5, -2.5]}>
+          <mesh onPointerOver={handleWindowMouseOver} position={[0.375, 0, 0]}>
+            {Box({
+              position: [0, 0.05, 0],
+              geometry: [0.75, 1.4, 0.05],
+              color: COLOR_PALETTE.white,
+              transparent: true,
+              opacity: 0.2
+            })}
+            {/* Vertical divider */}
+            {Box({
+              position: [0, 0, 0], 
+              geometry: [0.05, 1.5, 0.075], 
+              color: COLOR_PALETTE.white
+            })}
+            {/* Horizontal segments */}
+            {Box({
+              position: [0, 0.4, 0], 
+              geometry: [0.75, 0.05, 0.075], 
+              color: COLOR_PALETTE.white
+            })}
+            {Box({
+              position: [0, -0.1, 0], 
+              geometry: [0.75, 0.05, 0.075], 
+              color: COLOR_PALETTE.white
+            })}
+          </mesh>
+        </group>
+
+        {/* Right window (animated) */}
+        <group ref={rightWindowRef} position={[0.775, 2.5, -2.5]}>
+          <mesh onPointerOver={handleWindowMouseOver} position={[-0.375, 0, 0]}>
+            {Box({
+              position: [0, 0.05, 0],
+              geometry: [0.75, 1.5, 0.05],
+              color: COLOR_PALETTE.white,
+              transparent: true,
+              opacity: 0.2
+            })}
+            {/* Vertical divider */}
+            {Box({
+              position: [0, 0, 0], 
+              geometry: [0.05, 1.5, 0.075], 
+              color: COLOR_PALETTE.white
+            })}
+            {/* Horizontal segments */}
+            {Box({
+              position: [0, 0.4, 0], 
+              geometry: [0.75, 0.05, 0.075], 
+              color: COLOR_PALETTE.white
+            })}
+            {Box({
+              position: [0, -0.1, 0], 
+              geometry: [0.75, 0.05, 0.075], 
+              color: COLOR_PALETTE.white
+            })}
+          </mesh>
+        </group>
+      </group>
+    )
+  }
+
   return (
     <group ref={group} {...props} dispose={null}>
       <ambientLight intensity={0.5} />
       <directionalLight position={[0, 5, -5]} intensity={1} />
       {/* Floor */}
-      {Box({position: [0,0,0], geometry: [5.1, 0.1, 5.1], color: COLOR_PALETTE.test })}
+      {Box({position: [0,-0.21,0], geometry: [5.1, 0.5, 5.1], color: COLOR_PALETTE.test })}
       {/* Walls */}
       {/* Right Wall */}
       {Box({position: [-1.62,0.9,-2.5], geometry: [1.85,1.75,0.1], color: COLOR_PALETTE.test })}
@@ -607,6 +1049,20 @@ export default function Room({...props}): JSX.Element {
         position: [1.7, 0.75, -.85],
         shape: bedShape,
         extrudeSettings: bedExtrudeSettings,
+        color: COLOR_PALETTE.white
+      })}
+      {/* Covers */}
+      {Extrude({
+        position: [1.7, 0.76, -.85],
+        shape: coversShape,
+        extrudeSettings: coversExtrudeSettings,
+        color: COLOR_PALETTE.darkBlue
+      })}
+      {/* Cover Fold */}
+      {Extrude({
+        position: [1.69, 0.778, -2.51],
+        shape: coverFoldShape,
+        extrudeSettings: coverFoldSettings,
         color: COLOR_PALETTE.white
       })}
       {/* Bed Frame */}
@@ -729,6 +1185,31 @@ export default function Room({...props}): JSX.Element {
         spineGeometry: [0.01,0.3,0.08],
         spineColor: COLOR_PALETTE.darkBlue,
       })}
+      {LacrosseStick({position: [-2,0.54,-0.55], rotation: [2.6, -2*Math.PI, -Math.PI]})}
+      {/* Lacrosse Ball */}
+      <mesh 
+        ref={ballRef}
+        position={[ballStartPos.x, ballStartPos.y, ballStartPos.z]} 
+        onPointerOver={handleLacrosseBallMouseOver}
+      >
+        <sphereGeometry args={[0.06]} />
+        <meshPhongMaterial color={COLOR_PALETTE.trueWhite} />
+      </mesh>
+      {/* Newspaper */}
+      {Box({position: [-1.3, 0.05, -0.6], geometry: [0.5,0.02,0.5], rotation: [0, Math.PI/2, 0], color: COLOR_PALETTE.gray})}
+      <NewsPaperPage ref={newspaperRef} position={[-1.3, 0.05, -0.6]} geometry={[0.5,0.02,0.5]} color={COLOR_PALETTE.gray}/>
+      {/* Windows */}
+      {/* {Box({position: [0.025, 2.5, -2.48], geometry: [1.6, 1.5, 0.05], color: COLOR_PALETTE.white, transparent: true, opacity: 0.2})} */}
+      {/* {Box({position: [-2.7, 2.5, 1.1], geometry: [0.8, 1.5, 0.05], color: COLOR_PALETTE.white, transparent: true, opacity: 0.2, rotation: [0, Math.PI/3, 0]})} */}
+      {/* {Box({position: [-2.7, 2.5, -1.025], geometry: [0.8, 1.5, 0.05], color: COLOR_PALETTE.white, transparent: true, opacity: 0.2, rotation: [0, -Math.PI/3, 0]})} */}
+       {/* Left Window Sill  */}
+       {Box({position: [-2.5, 1.8, 0.037], geometry: [0.5,0.1,1.6]})}
+       {/* Right Window Sill  */}
+       {Box({position: [0.012, 1.8, -2.5], geometry: [1.6,0.1,0.5]})}
+       {/* Right Window Frame */}
+       {WindowFrame({position: [0, 0, 0], geometry: [0.05, 1.5, 0.05], rotation: [0, 0, 0], color: COLOR_PALETTE.white, isClosed: true})}
+       {/* Left Window Frame */}
+       {WindowFrame({position: [0, 0, 0.05], geometry: [0.05, 1.5, 0.05], rotation: [0, Math.PI/2, 0], color: COLOR_PALETTE.white, isClosed: false})}
     </group>
   )
 }
