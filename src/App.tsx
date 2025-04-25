@@ -1,6 +1,4 @@
-import { JSX, useRef } from 'react'
 import './App.css'
-import * as THREE from 'three'
 import { BakeShadows, Bounds, OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import Room from './components/Room'
