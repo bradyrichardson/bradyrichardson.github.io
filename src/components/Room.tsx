@@ -47,7 +47,6 @@ export default function Room({...props}): JSX.Element {
     'darkRed': '#8F3F3F',
     'silver': '#818589',
     'lightBeige': '#F5F5DC',
-
   }
 
   const handleLampMouseOver = () => {
