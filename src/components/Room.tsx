@@ -27,8 +27,19 @@ export default function Room({...props}): JSX.Element {
   const [us_animationTriggered, us_setAnimationTriggered] = useState(false)
   const [us_leftWindowOpen, us_setLeftWindowOpen] = useState(false)
   const [us_rightWindowOpen, us_setRightWindowOpen] = useState(false)
-  const leftWindowRotation = useRef(0)
-  const rightWindowRotation = useRef(0)
+  const [us_rightRightWindowOpen, us_setRightRightWindowOpen] = useState(false)
+  const [us_rightLeftWindowOpen, us_setRightLeftWindowOpen] = useState(false)
+  const [us_leftRightWindowOpen, us_setLeftRightWindowOpen] = useState(false)
+  const [us_leftLeftWindowOpen, us_setLeftLeftWindowOpen] = useState(false)
+  const rightRightWindowRotation = useRef(0)
+  const rightLeftWindowRotation = useRef(0)
+  const leftRightWindowRotation = useRef(0)
+  const leftLeftWindowRotation = useRef(0)
+  const leftLeftWindowRef = useRef<THREE.Group>(null)
+  const rightRightWindowRef = useRef<THREE.Group>(null)
+  const rightLeftWindowRef = useRef<THREE.Group>(null)
+  const leftRightWindowRef = useRef<THREE.Group>(null)
+
   const COLOR_PALETTE = {
     'trueWhite': '#ffffff',
     'black': '#0f1626',
@@ -655,10 +666,8 @@ export default function Room({...props}): JSX.Element {
           geometry={[1.4, 0.01, 1.25]}
           color={COLOR_PALETTE.lightBeige}
           ref={drawerOneRef}
-          // @ts-expect-error directive here
-          onPointerOver={() => handleDrawerMouseOver(drawerOneRef, targetPositionOne)}
-          // @ts-expect-error directive here
-          onPointerOut={() => handleDrawerMouseOut(drawerOneRef, targetPositionOne)}
+          onPointerOver={() => handleDrawerMouseOver(targetPositionOne)}
+          onPointerOut={() => handleDrawerMouseOut(targetPositionOne)}
         />
         <Drawer
           // @ts-expect-error directive here
@@ -666,10 +675,8 @@ export default function Room({...props}): JSX.Element {
           geometry={[1.4, 0.01, 1.25]}
           color={COLOR_PALETTE.lightBeige}
           ref={drawerTwoRef}
-          // @ts-expect-error directive here
-          onPointerOver={() => handleDrawerMouseOver(drawerTwoRef, targetPositionTwo)}
-          // @ts-expect-error directive here
-          onPointerOut={() => handleDrawerMouseOut(drawerTwoRef, targetPositionTwo)}
+          onPointerOver={() => handleDrawerMouseOver(targetPositionTwo)}
+          onPointerOut={() => handleDrawerMouseOut(targetPositionTwo)}
         />
         <Drawer
           // @ts-expect-error directive here
@@ -677,10 +684,8 @@ export default function Room({...props}): JSX.Element {
           geometry={[1.4, 0.01, 1.25]}
           color={COLOR_PALETTE.lightBeige}
           ref={drawerThreeRef}
-          // @ts-expect-error directive here
-          onPointerOver={() => handleDrawerMouseOver(drawerThreeRef, targetPositionThree)}
-          // @ts-expect-error directive here
-          onPointerOut={() => handleDrawerMouseOut(drawerThreeRef, targetPositionThree)}
+          onPointerOver={() => handleDrawerMouseOver(targetPositionThree)}
+          onPointerOut={() => handleDrawerMouseOut(targetPositionThree)}
         />
         <Drawer
           // @ts-expect-error directive here
@@ -688,10 +693,8 @@ export default function Room({...props}): JSX.Element {
           geometry={[1.4, 0.01, 1.25]}
           color={COLOR_PALETTE.lightBeige}
           ref={drawerFourRef}
-          // @ts-expect-error directive here
-          onPointerOver={() => handleDrawerMouseOver(drawerFourRef, targetPositionFour)}
-          // @ts-expect-error directive here
-          onPointerOut={() => handleDrawerMouseOut(drawerFourRef, targetPositionFour)}
+          onPointerOver={() => handleDrawerMouseOver(targetPositionFour)}
+          onPointerOut={() => handleDrawerMouseOut(targetPositionFour)}
         />
       </group>
     )
@@ -898,17 +901,23 @@ export default function Room({...props}): JSX.Element {
   }
 
   const WindowFrame = ({...props}): JSX.Element => {
+    // 1. Define refs for each window
     const leftWindowRef = useRef<THREE.Group>(null)
     const rightWindowRef = useRef<THREE.Group>(null)
+    
+    // 2. Define rotation states and refs
+    const [us_leftWindowOpen, us_setLeftWindowOpen] = useState(false)
+    const [us_rightWindowOpen, us_setRightWindowOpen] = useState(false)
+    const leftWindowRotation = useRef(0)
+    const rightWindowRotation = useRef(0)
     const leftTargetRotation = useRef(0)
     const rightTargetRotation = useRef(0)
 
     useFrame((_, delta) => {
       if (leftWindowRef.current) {
-        // Smoothly animate left window
+        // 3. Use the correct rotation references
         leftWindowRotation.current += (leftTargetRotation.current - leftWindowRotation.current) * delta * 5
         
-        // Snap to end positions when close
         if (Math.abs(leftWindowRotation.current - Math.PI / 3) < 0.01) {
           leftWindowRotation.current = Math.PI / 3
         } else if (Math.abs(leftWindowRotation.current) < 0.01) {
@@ -919,10 +928,8 @@ export default function Room({...props}): JSX.Element {
       }
       
       if (rightWindowRef.current) {
-        // Smoothly animate right window
         rightWindowRotation.current += (rightTargetRotation.current - rightWindowRotation.current) * delta * 5
         
-        // Snap to end positions when close
         if (Math.abs(rightWindowRotation.current - Math.PI / 3) < 0.01) {
           rightWindowRotation.current = Math.PI / 3
         } else if (Math.abs(rightWindowRotation.current) < 0.01) {
@@ -933,11 +940,15 @@ export default function Room({...props}): JSX.Element {
       }
     })
 
-    const handleWindowMouseOver = () => {
-      us_setRightWindowOpen(!us_rightWindowOpen)
+    // 4. Separate handlers for left and right windows
+    const handleLeftWindowMouseOver = () => {
       us_setLeftWindowOpen(!us_leftWindowOpen)
-      rightTargetRotation.current = us_rightWindowOpen ? 0 : Math.PI / 3
       leftTargetRotation.current = us_leftWindowOpen ? 0 : Math.PI / 3
+    }
+
+    const handleRightWindowMouseOver = () => {
+      us_setRightWindowOpen(!us_rightWindowOpen)
+      rightTargetRotation.current = us_rightWindowOpen ? 0 : Math.PI / 3
     }
 
     return (
@@ -966,13 +977,14 @@ export default function Room({...props}): JSX.Element {
 
         {/* Left window (animated) */}
         <group ref={leftWindowRef} position={[-0.75, 2.5, -2.5]}>
-          <mesh onPointerOver={handleWindowMouseOver} position={[0.375, 0, 0]}>
+          <mesh position={[0.375, 0, 0]}>
             {Box({
               position: [0, 0.05, 0],
               geometry: [0.75, 1.4, 0.05],
               color: COLOR_PALETTE.white,
               transparent: true,
-              opacity: 0.2
+              opacity: 0.2,
+              onPointerOver: handleLeftWindowMouseOver
             })}
             {/* Vertical divider */}
             {Box({
@@ -996,13 +1008,14 @@ export default function Room({...props}): JSX.Element {
 
         {/* Right window (animated) */}
         <group ref={rightWindowRef} position={[0.775, 2.5, -2.5]}>
-          <mesh onPointerOver={handleWindowMouseOver} position={[-0.375, 0, 0]}>
+          <mesh position={[-0.375, 0, 0]}>
             {Box({
               position: [0, 0.05, 0],
               geometry: [0.75, 1.5, 0.05],
               color: COLOR_PALETTE.white,
               transparent: true,
-              opacity: 0.2
+              opacity: 0.2,
+              onPointerOver: handleRightWindowMouseOver
             })}
             {/* Vertical divider */}
             {Box({
@@ -1121,10 +1134,6 @@ export default function Room({...props}): JSX.Element {
       {Box({position: [-1.8, 1.95, 1.799], geometry: [1.5, 0.1, 1.5], color: COLOR_PALETTE.beige})}
       {/* Drawers */}
       {Drawers({position: [-1.8, 0.5, 1.799], rotation: [0, 0, 0]})}
-      {/* Windows */}
-      {/* Left Window */}
-      {/* Right Window */}
-      {/* {Box({position: [0, 2.5, -2.45], geometry: [1.5, 1.5, 0.05], color: COLOR_PALETTE.white})} */}
       {/* Bookshelf */}
       {Box({position: [-2.45, 4, 0], geometry: [0.05, 0.6, 3], color: COLOR_PALETTE.beige, onMouseOver: () => {}})}
       {Box({position: [-2.33, 4.3, 0], geometry: [0.4, 0.06, 3], color: COLOR_PALETTE.beige})}
@@ -1226,10 +1235,10 @@ export default function Room({...props}): JSX.Element {
        {Box({position: [-2.5, 1.8, 0.037], geometry: [0.5,0.1,1.6]})}
        {/* Right Window Sill  */}
        {Box({position: [0.012, 1.8, -2.5], geometry: [1.6,0.1,0.5]})}
-       {/* Right Window Frame */}
-       {WindowFrame({position: [0, 0, 0], geometry: [0.05, 1.5, 0.05], rotation: [0, 0, 0], color: COLOR_PALETTE.white, isClosed: true})}
        {/* Left Window Frame */}
-       {WindowFrame({position: [0, 0, 0.05], geometry: [0.05, 1.5, 0.05], rotation: [0, Math.PI/2, 0], color: COLOR_PALETTE.white, isClosed: false})}
+       <WindowFrame position={ [0, 0, 0]} geometry={ [0.05, 1.5, 0.05]} rotation={ [0, 0, 0]} color={ COLOR_PALETTE.white} isClosed={ true} leftLeftWindowRef={ leftLeftWindowRef} leftRightWindowRef={ leftRightWindowRef}/>
+       {/* Right Window Frame */}
+       <WindowFrame position={ [0, 0, 0.05]} geometry={ [0.05, 1.5, 0.05]} rotation={ [0, Math.PI/2, 0]} color={ COLOR_PALETTE.white} isClosed={ false} rightRightWindowRef={ rightRightWindowRef} rightLeftWindowRef={ rightLeftWindowRef}/>
     </group>
   )
 }
