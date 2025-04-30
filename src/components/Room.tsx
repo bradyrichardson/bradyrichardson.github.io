@@ -1,6 +1,7 @@
 import { useFrame } from "@react-three/fiber";
 import { JSX, useRef, useState, Fragment, forwardRef } from "react";
 import * as THREE from 'three'
+import { luminance } from "three/tsl";
 
 export default function Room({...props}): JSX.Element {
   const group = useRef<THREE.Group>(null)
@@ -30,6 +31,7 @@ export default function Room({...props}): JSX.Element {
   const rightLeftWindowRef = useRef<THREE.Group>(null)
   const leftRightWindowRef = useRef<THREE.Group>(null)
   const [us_bookOpen, us_setBookOpen] = useState(false)
+  const [us_stringLightsOn, us_setStringLightsOn] = useState(false)
 
   const COLOR_PALETTE = {
     'trueWhite': '#ffffff',
@@ -49,6 +51,7 @@ export default function Room({...props}): JSX.Element {
     'darkRed': '#8F3F3F',
     'silver': '#818589',
     'lightBeige': '#F5F5DC',
+    'lightYellow': '#FFFFC5',
   }
 
   const handleLampMouseOver = () => {
@@ -89,6 +92,10 @@ export default function Room({...props}): JSX.Element {
       us_setBookOpen(false)
       bookPagePosition.current = new THREE.Vector3(0, 0, 0)
     }
+  }
+
+  const handleLightSwitchMouseOver = () => {
+    us_setStringLightsOn(!us_stringLightsOn)
   }
 
   useFrame((_, delta) => {
@@ -148,7 +155,7 @@ export default function Room({...props}): JSX.Element {
     return (
         <mesh position={props.position} onClick={props.onClick ? props.onClick : null} rotation={props.rotation ? props.rotation : [0,0,0] } onPointerOver={props.onPointerOver ? props.onPointerOver : null}>
           <boxGeometry args={props.geometry}/>
-          <meshPhongMaterial color={props.color} opacity={props.opacity ? props.opacity : 1} transparent={props.transparent ? props.transparent : false} side={THREE.DoubleSide}/>
+          <meshToonMaterial color={props.color} opacity={props.opacity ? props.opacity : 1} transparent={props.transparent ? props.transparent : false} side={THREE.DoubleSide}/>
       </mesh>
     )
   }
@@ -163,7 +170,7 @@ export default function Room({...props}): JSX.Element {
     return (
       <mesh position={props.position} onClick={props.onClick ? props.onClick : null} onPointerOver={props.onPointerOver ? props.onPointerOver : null}>
         <sphereGeometry args={props.radius}/>
-        <meshPhongMaterial color={props.color} opacity={props.opacity} transparent={props.transparent} shininess={props.shininess} specular={props.specular}/>
+        <meshToonMaterial color={props.color} opacity={props.opacity} transparent={props.transparent} shininess={props.shininess} specular={props.specular}/>
       </mesh>
     )
   }
@@ -172,7 +179,7 @@ export default function Room({...props}): JSX.Element {
     return (
       <mesh position={props.position} onClick={props.onClick ? props.onClick : null}>
         <cylinderGeometry args={[props.radiusTop, props.radiusBottom, props.height]}/>
-        <meshPhongMaterial color={props.color} opacity={props.opacity} transparent={props.transparent} shininess={props.shininess} specular={props.specular}/>
+        <meshToonMaterial color={props.color} opacity={props.opacity} transparent={props.transparent} shininess={props.shininess} specular={props.specular}/>
       </mesh>
     )
   }
@@ -181,7 +188,13 @@ export default function Room({...props}): JSX.Element {
     return (
       <mesh position={props.position} onPointerOver={props.onPointerOver ? props.onPointerOver : null}>
         <latheGeometry args={[props.points, props.segments]}/>
-        <meshPhongMaterial color={props.color} opacity={props.opacity} transparent={props.transparent}/>
+        <meshPhongMaterial 
+          color={props.color} 
+          opacity={props.opacity} 
+          transparent={props.transparent}
+          emissive={props.emissive}
+          emissiveIntensity={props.emissiveIntensity}
+        />
       </mesh>
     )
   }
@@ -190,7 +203,7 @@ export default function Room({...props}): JSX.Element {
     return (
       <mesh position={props.position} rotation={[Math.PI/2, 0, 0]}>
         <extrudeGeometry args={[props.shape, props.extrudeSettings]}/>
-        <meshPhongMaterial 
+        <meshToonMaterial 
           color={props.color} 
           transparent={props.transparent || false}
         />
@@ -346,6 +359,21 @@ export default function Room({...props}): JSX.Element {
           transparent: true,
           onPointerOver: handleLampMouseOver
         })}
+
+        {/* Lampshade glow */}
+        <pointLight
+          position={[0, 0.3, 0]}
+          intensity={!us_lightOne ? 0.8 : 0}
+          color={COLOR_PALETTE.orange}
+          distance={1}
+        />
+
+        {/* Existing light for illumination */}
+        {PointLight({
+          position: [0.3, 0, 0.1],
+          intensity: us_lightOne ? 10 : 0,
+          color: COLOR_PALETTE.lightYellow
+        })}
         {/* Bulb */}
         {Sphere({
           position: [0, 0, 0],
@@ -355,12 +383,6 @@ export default function Room({...props}): JSX.Element {
           shininess: 100,
           specular: 'white',
           color: COLOR_PALETTE.white,
-        })}
-        {/* Light */}
-        {PointLight({
-          position: [0.3, 0, 0.1],
-          intensity: us_lightOne ? 10 : 0,
-          color: COLOR_PALETTE.white
         })}
         {/* Bulb holder */}
         {Cylinder({
@@ -544,10 +566,20 @@ export default function Room({...props}): JSX.Element {
         {Box({
           position: [-0.35, 0.22, 0],
           geometry: [0.5, 0.02, 0.5],
-          color: COLOR_PALETTE.silver,
+          color: us_laptopOn ? COLOR_PALETTE.silver : COLOR_PALETTE.lightBlue,
           rotation: [0, 0, 2*Math.PI/3],
+          transparent: true,
+          opacity: us_laptopOn ? 1 : 0.8,
           onPointerOver: !us_laptopOn ? handleLaptopMouseOver : undefined
         })}
+        
+        {/* Screen glow */}
+        <pointLight
+          position={[-0.35, 0.22, 0]}
+          intensity={!us_laptopOn ? 0.5 : 0}
+          color={COLOR_PALETTE.orange}
+          distance={0.5}
+        />
         
         {/* Screen content */}
         <group position={[-0.34, 0.23, 0]} rotation={[0, 0, 2*Math.PI/3]}>
@@ -727,22 +759,22 @@ export default function Room({...props}): JSX.Element {
         {/* Top of Head */}
         <mesh position={[0,0.8,0]} rotation={[0,0,1.8*Math.PI]}> 
           <torusGeometry args={[0.15, 0.015, 10, 30, 1.4*Math.PI]}/> 
-          <meshPhongMaterial color={COLOR_PALETTE.white} />
+          <meshToonMaterial color={COLOR_PALETTE.white} />
         </mesh>
         {/* Right Sidewall */}
         <mesh position={[-0.248,0.63,0]} rotation={[0,0,1.95*Math.PI]}> 
           <torusGeometry args={[0.15, 0.015, 10, 30, Math.PI/4]}/> 
-          <meshPhongMaterial color={COLOR_PALETTE.white} />
+          <meshToonMaterial color={COLOR_PALETTE.white} />
         </mesh>
         {/* Left Sidewall */}
         <mesh position={[0.25,0.635,0]} rotation={[0,0,2.83*Math.PI]}> 
           <torusGeometry args={[0.15, 0.015, 10, 30, Math.PI/4]}/> 
-          <meshPhongMaterial color={COLOR_PALETTE.white} />
+          <meshToonMaterial color={COLOR_PALETTE.white} />
         </mesh>
         {/* Bottom */}
         <mesh position={[0,0.58,0]} rotation={[0,0,2.83*Math.PI]}> 
           <torusGeometry args={[0.11, 0.016, 10, 5, 1.3*Math.PI]}/> 
-          <meshPhongMaterial color={COLOR_PALETTE.white} />
+          <meshToonMaterial color={COLOR_PALETTE.white} />
         </mesh>
         {/* Mesh */}
         <group position={[0, 0.15, 0]}>
@@ -762,7 +794,7 @@ export default function Room({...props}): JSX.Element {
               ]),
               32, 0.01, 8, false
             ]} />
-            <meshPhongMaterial color={COLOR_PALETTE.white} />
+            <meshToonMaterial color={COLOR_PALETTE.white} />
           </mesh>
           
           {/* Left strings */}
@@ -782,7 +814,7 @@ export default function Room({...props}): JSX.Element {
                 ]),
                 32, 0.01, 8, false
               ]} />
-              <meshPhongMaterial color={COLOR_PALETTE.white} />
+              <meshToonMaterial color={COLOR_PALETTE.white} />
             </mesh>
           ))}
           
@@ -803,7 +835,7 @@ export default function Room({...props}): JSX.Element {
                 ]),
                 32, 0.01, 8, false
               ]} />
-              <meshPhongMaterial color={COLOR_PALETTE.white} />
+              <meshToonMaterial color={COLOR_PALETTE.white} />
             </mesh>
           ))}
 
@@ -822,7 +854,7 @@ export default function Room({...props}): JSX.Element {
               ]),
               32, 0.01, 8, false
             ]} />
-            <meshPhongMaterial color={COLOR_PALETTE.lightBlue} />
+            <meshToonMaterial color={COLOR_PALETTE.lightBlue} />
           </mesh>
           {/* Horizontal string */}
           <mesh position={[0, 0, 0]}>
@@ -839,7 +871,7 @@ export default function Room({...props}): JSX.Element {
               ]),
               32, 0.01, 8, false
             ]} />
-            <meshPhongMaterial color={COLOR_PALETTE.white} />
+            <meshToonMaterial color={COLOR_PALETTE.white} />
           </mesh>
           {/* Horizontal string */}
           <mesh position={[0, 0, 0]}>
@@ -856,7 +888,7 @@ export default function Room({...props}): JSX.Element {
               ]),
               32, 0.01, 8, false
             ]} />
-            <meshPhongMaterial color={COLOR_PALETTE.white} />
+            <meshToonMaterial color={COLOR_PALETTE.white} />
           </mesh>
           {/* Horizontal string */}
           <mesh position={[0, 0, 0]}>
@@ -873,7 +905,7 @@ export default function Room({...props}): JSX.Element {
               ]),
               32, 0.01, 8, false
             ]} />
-            <meshPhongMaterial color={COLOR_PALETTE.white} />
+            <meshToonMaterial color={COLOR_PALETTE.white} />
           </mesh>
           {/* Horizontal string */}
           <mesh position={[0, 0, 0]}>
@@ -890,9 +922,52 @@ export default function Room({...props}): JSX.Element {
               ]),
               32, 0.01, 8, false
             ]} />
-            <meshPhongMaterial color={COLOR_PALETTE.white} />
+            <meshToonMaterial color={COLOR_PALETTE.white} />
           </mesh>
         </group>
+      </group>
+    )
+  }
+
+  const StringLight = ({position, color}: {position: [number, number, number], color: string}): JSX.Element => {
+    return (
+      <group position={position}>
+        {/* Hanging wire */}
+        <mesh>
+          <tubeGeometry args={[
+            new THREE.CatmullRomCurve3([
+              new THREE.Vector3(0, 0, 0),
+              new THREE.Vector3(0, -0.1, 0),
+            ]),
+            8, 0.002, 8, false
+          ]} />
+          <meshToonMaterial color={COLOR_PALETTE.black} />
+        </mesh>
+        
+        {/* Bulb base (cylinder) */}
+        {Cylinder({
+          position: [0, -0.12, 0],
+          radiusTop: 0.015,
+          radiusBottom: 0.015,
+          height: 0.04,
+          color: COLOR_PALETTE.silver
+        })}
+        
+        {/* Glass bulb */}
+        {Sphere({
+          position: [0, -0.2, 0],
+          radius: [0.06],
+          color: us_stringLightsOn ? color : COLOR_PALETTE.white,
+          opacity: us_stringLightsOn ? 0.2 : 1,
+          transparent: true
+        })}
+        {/* Light source */}
+        <pointLight
+          position={[0, -0.17, 0]}
+          intensity={us_stringLightsOn ? 0.1 : 0}
+          color={color}
+          distance={5}
+        />
       </group>
     )
   }
@@ -980,7 +1055,7 @@ export default function Room({...props}): JSX.Element {
               geometry: [0.75, 1.4, 0.05],
               color: COLOR_PALETTE.white,
               transparent: true,
-              opacity: 0.2,
+              opacity: 0.1,
               onPointerOver: handleLeftWindowMouseOver
             })}
             {/* Vertical divider */}
@@ -1011,7 +1086,7 @@ export default function Room({...props}): JSX.Element {
               geometry: [0.75, 1.5, 0.05],
               color: COLOR_PALETTE.white,
               transparent: true,
-              opacity: 0.2,
+              opacity: 0.1,
               onPointerOver: handleRightWindowMouseOver
             })}
             {/* Vertical divider */}
@@ -1037,33 +1112,59 @@ export default function Room({...props}): JSX.Element {
     )
   }
 
+  const StringLights = ({...props}) => {
+    return (
+      <group {...props}>
+        <mesh>
+          <tubeGeometry args={[
+            new THREE.CatmullRomCurve3([
+              new THREE.Vector3(1.62, 3.8, -2.0),
+              new THREE.Vector3(1.62, 3.7, -1.5),
+              new THREE.Vector3(1.62, 3.8, -1.0),
+              // new THREE.Vector3(1.62, 3.7, -0.5),
+              // new THREE.Vector3(1.62, 3.8, 0),
+            ]),
+            32, 0.005, 8, false
+          ]} />
+          <meshToonMaterial color={COLOR_PALETTE.black} />
+        </mesh>
+        {/* Lights */}
+        <StringLight position={[1.62, 3.8, -2.0]} color={COLOR_PALETTE.lightYellow} />
+        <StringLight position={[1.62, 3.7, -1.5]} color={COLOR_PALETTE.lightYellow} />
+        <StringLight position={[1.62, 3.8, -1.0]} color={COLOR_PALETTE.lightYellow} />
+        {/* <StringLight position={[1.62, 3.7, -0.5]} color={COLOR_PALETTE.white} />
+        <StringLight position={[1.62, 3.8, 0]} color={COLOR_PALETTE.white} /> */}
+      </group>
+    )
+  }
+
   return (
     <group ref={group} {...props} dispose={null}>
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[0, 5, -5]} intensity={1} />
+      {/* <ambientLight intensity={0.5} /> */}
+      {/* <directionalLight position={[0, 5, -5]} intensity={1} /> */}
       {/* Floor */}
       {Box({position: [0,0,0], geometry: [5.1, 0.1, 5.1], color: COLOR_PALETTE.test })}
       {/* Walls */}
       {/* Right Wall */}
-      {Box({position: [-1.62,0.9,-2.5], geometry: [1.85,1.75,0.1], color: COLOR_PALETTE.test })}
-      {Box({position: [-1.65,2.45,-2.5], geometry: [1.8,1.75,0.1], color: COLOR_PALETTE.test })}
-      {Box({position: [-1.62,4.075,-2.5], geometry: [1.85,1.75,0.1], color: COLOR_PALETTE.test })}
-      {Box({position: [1.675,2.45,-2.5], geometry: [1.75,1.75,0.1], color: COLOR_PALETTE.test })}
-      {Box({position: [1.675,4.075,-2.5], geometry: [1.75,1.75,0.1], color: COLOR_PALETTE.test })}
-      {Box({position: [1.675,0.9,-2.5], geometry: [1.75,1.75,0.1], color: COLOR_PALETTE.test })}
-      {Box({position: [0,0.9,-2.5], geometry: [1.75,1.75,0.1], color: COLOR_PALETTE.test })}
-      {Box({position: [0,4.075,-2.5], geometry: [1.75,1.75,0.1], color: COLOR_PALETTE.test })}
+      {Box({position: [-1.62,0.9,-2.5], geometry: [1.85,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
+      {Box({position: [-1.65,2.45,-2.5], geometry: [1.8,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
+      {Box({position: [-1.62,4.075,-2.5], geometry: [1.85,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
+      {Box({position: [1.675,2.45,-2.5], geometry: [1.75,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
+      {Box({position: [1.675,4.075,-2.5], geometry: [1.75,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
+      {Box({position: [1.675,0.9,-2.5], geometry: [1.75,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
+      {Box({position: [0,0.9,-2.5], geometry: [1.75,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
+      {Box({position: [0,4.075,-2.5], geometry: [1.75,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
       {/* Left Wall */}
-      {Box({position: [-2.5, 0.9, -1.62], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.test })}
-      {Box({position: [-2.5, 2.45, -1.62], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.test })}
-      {Box({position: [-2.5, 4.075, -1.62], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.test })}
-      {Box({position: [-2.5, 2.45, 1.675], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.test })}
-      {Box({position: [-2.5, 4.075, 1.675], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.test })}
-      {Box({position: [-2.5, 0.9, 1.675], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.test })}
-      {Box({position: [-2.5, 0.9, 0], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.test })}
-      {Box({position: [-2.5, 4.075, 0], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.test })}
+      {Box({position: [-2.5, 0.9, -1.62], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
+      {Box({position: [-2.5, 2.45, -1.62], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
+      {Box({position: [-2.5, 4.075, -1.62], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
+      {Box({position: [-2.5, 2.45, 1.675], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
+      {Box({position: [-2.5, 4.075, 1.675], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
+      {Box({position: [-2.5, 0.9, 1.675], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
+      {Box({position: [-2.5, 0.9, 0], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
+      {Box({position: [-2.5, 4.075, 0], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
       {/* Laptop */}
-      {Laptop({position: [-1.85, 1.06, -1.7], rotation: [0, -Math.PI/6, 0]})}
+      {Laptop({position: [-1.6, 1.06, -1.7], rotation: [0, -Math.PI/6, 0]})}
       {/* Desk */}
       {Box({position: [-2,1,-1.7], geometry: [1,0.1,1.6], color: COLOR_PALETTE.beige})}
       {/* Desk Legs */}
@@ -1233,7 +1334,7 @@ export default function Room({...props}): JSX.Element {
         onPointerOver={handleLacrosseBallMouseOver}
       >
         <sphereGeometry args={[0.06]} />
-        <meshPhongMaterial color={COLOR_PALETTE.trueWhite} />
+        <meshToonMaterial color={COLOR_PALETTE.trueWhite} />
       </mesh>
       {/* Windows */}
       {/* {Box({position: [0.025, 2.5, -2.48], geometry: [1.6, 1.5, 0.05], color: COLOR_PALETTE.white, transparent: true, opacity: 0.2})} */}
@@ -1247,6 +1348,39 @@ export default function Room({...props}): JSX.Element {
        <WindowFrame position={ [0, 0, 0]} geometry={ [0.05, 1.5, 0.05]} rotation={ [0, 0, 0]} color={ COLOR_PALETTE.white} isClosed={ true} leftLeftWindowRef={ leftLeftWindowRef} leftRightWindowRef={ leftRightWindowRef}/>
        {/* Right Window Frame */}
        <WindowFrame position={ [0, 0, 0.05]} geometry={ [0.05, 1.5, 0.05]} rotation={ [0, Math.PI/2, 0]} color={ COLOR_PALETTE.white} isClosed={ false} rightRightWindowRef={ rightRightWindowRef} rightLeftWindowRef={ rightLeftWindowRef}/>
+      {/* Light switch */}
+      {Box({
+        position: [1.675, 2, -2.39],
+        geometry: [0.05, 0.1, 0.05],
+        color: us_stringLightsOn ? COLOR_PALETTE.white : COLOR_PALETTE.orange,
+      })}
+      {Box({
+        position: [1.675, 2, -2.45],
+        geometry: [0.1, 0.15, 0.1],
+        color: us_stringLightsOn ? COLOR_PALETTE.white : COLOR_PALETTE.black,
+        transparent: true,
+        opacity: us_stringLightsOn ? 1 : 1,
+        onPointerOver: handleLightSwitchMouseOver
+      })}
+      {/* Light switch glow */}
+      <pointLight
+        position={[1.675, 2, -2.3]}
+        intensity={us_stringLightsOn ? 0 : 0.5}
+        color={COLOR_PALETTE.orange}
+        distance={0.3}
+      />
+      {/* right side string lights */}
+      {StringLights({position: [-.35,1,-0.73], rotation: [0,Math.PI/2,0]})}
+      {StringLights({position: [0.65,1,-0.73], rotation: [0,Math.PI/2,0]})}
+      {StringLights({position: [1.65,1,-0.73], rotation: [0,Math.PI/2,0]})}
+      {StringLights({position: [2.65,1,-0.73], rotation: [0,Math.PI/2,0]})}
+      {StringLights({position: [3.65,1,-0.73], rotation: [0,Math.PI/2,0]})}
+      {/* left side string lights */}
+      {StringLights({position: [-3.97,1,-0.35], rotation: [0,0,0]})}
+      {StringLights({position: [-3.97,1,0.65], rotation: [0,0,0]})}
+      {StringLights({position: [-3.97,1,1.65], rotation: [0,0,0]})}
+      {StringLights({position: [-3.97,1,2.65], rotation: [0,0,0]})}
+      {StringLights({position: [-3.97,1,3.65], rotation: [0,0,0]})}
     </group>
   )
 }

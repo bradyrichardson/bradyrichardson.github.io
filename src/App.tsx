@@ -5,7 +5,7 @@ import Room from './components/Room'
 
 function App() {
   return (
-    <Canvas orthographic shadows dpr={[1, 2]} camera={{ position: [10, 10, 10], zoom: 10 }} style={{height: window.innerHeight - 50, width: window.innerWidth - 50}}>
+    <Canvas orthographic shadows dpr={[1, 2]} camera={{ position: [10, 10, 10], zoom: 10 }} style={{height: window.innerHeight, width: window.innerWidth, display: 'flex', justifySelf: 'center', alignSelf: 'center'}}>
       <color attach="background" args={['#000000']} />
       {/* <ambientLight intensity={0.01} /> */}
       {/* <hemisphereLight intensity={0.125} color="#8040df" groundColor="red" /> */}
@@ -21,16 +21,17 @@ function App() {
         minAzimuthAngle={0}
         maxAzimuthAngle={Math.PI / 2}
         // minPolarAngle={5 * Math.PI / 6}
-        // maxPolarAngle={Math.PI / 2}
+        minZoom={70}
+        maxPolarAngle={Math.PI / 2}
         enableZoom={true}
         enablePan={true}
         enableRotate={true}
         zoomSpeed={0.3}
       />
       {/* <gridHelper args={[1000, 200, '#151515', '#020202']} position={[0, -4, 0]} /> */}
-      <mesh scale={200} rotation={[-Math.PI / 2, 0, 0]} position={[0, -4, 0]} receiveShadow>
-        {/* <planeGeometry  args={[1000, 1, ]}/> */}
-        <shadowMaterial transparent opacity={0.3} /> 
+      <mesh scale={200} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]} receiveShadow>
+        <planeGeometry/>
+        <meshPhongMaterial opacity={1} color="#6B6B6B" /> 
       </mesh>
     </Canvas>
   )
