@@ -22,23 +22,14 @@ export default function Room({...props}): JSX.Element {
   const gravity = -9.8
   const bounceFactor = 0.6 // How much bounce (1 = perfect bounce, 0 = no bounce)
   const floorY = 0.105 // Y position of floor + ball radius
-  const newspaperRef = useRef<THREE.Mesh>(null)
-  const newspaperRotation = useRef(0)
+  const bookPageRotation = useRef(new THREE.Vector3(0, 0, 0))
+  const bookPagePosition = useRef(new THREE.Vector3(0, 0, 0))
   const [us_animationTriggered, us_setAnimationTriggered] = useState(false)
-  const [us_leftWindowOpen, us_setLeftWindowOpen] = useState(false)
-  const [us_rightWindowOpen, us_setRightWindowOpen] = useState(false)
-  const [us_rightRightWindowOpen, us_setRightRightWindowOpen] = useState(false)
-  const [us_rightLeftWindowOpen, us_setRightLeftWindowOpen] = useState(false)
-  const [us_leftRightWindowOpen, us_setLeftRightWindowOpen] = useState(false)
-  const [us_leftLeftWindowOpen, us_setLeftLeftWindowOpen] = useState(false)
-  const rightRightWindowRotation = useRef(0)
-  const rightLeftWindowRotation = useRef(0)
-  const leftRightWindowRotation = useRef(0)
-  const leftLeftWindowRotation = useRef(0)
   const leftLeftWindowRef = useRef<THREE.Group>(null)
   const rightRightWindowRef = useRef<THREE.Group>(null)
   const rightLeftWindowRef = useRef<THREE.Group>(null)
   const leftRightWindowRef = useRef<THREE.Group>(null)
+  const [us_bookOpen, us_setBookOpen] = useState(false)
 
   const COLOR_PALETTE = {
     'trueWhite': '#ffffff',
@@ -90,18 +81,18 @@ export default function Room({...props}): JSX.Element {
     }
   }
 
-  const NewsPaperPage = forwardRef(({...props}, ref): JSX.Element => {
-    return (
-      <mesh ref={ref} {...props} dispose={null}>
-        {/* @ts-expect-error directive here*/}
-        <boxGeometry args={props.geometry} />
-        {/* @ts-expect-error directive here*/}
-        <meshPhongMaterial color={props.color} />
-      </mesh>
-    )
-  })
+  const handleBookMouseOver = () => {
+    if (!us_bookOpen) {
+      us_setBookOpen(true)
+      bookPagePosition.current = new THREE.Vector3(1, 1, 1)
+    } else {
+      us_setBookOpen(false)
+      bookPagePosition.current = new THREE.Vector3(0, 0, 0)
+    }
+  }
 
   useFrame((_, delta) => {
+    // drawer animation on mouse over
     if (drawerOneRef.current && targetPositionOne.current) {
       drawerOneRef.current.position.lerp(targetPositionOne.current, delta * 5)
     }
@@ -115,44 +106,41 @@ export default function Room({...props}): JSX.Element {
       drawerFourRef.current.position.lerp(targetPositionFour.current, delta * 5)
     }
 
+    // ball animation on mouse over
     if (us_ballAnimating && ballRef.current) {
       // Update velocity with gravity
       ballVelocity.current.y += gravity * delta
 
-      // Update position based on velocity
+      // update position based on velocity
       ballRef.current.position.x += ballVelocity.current.x * delta
       ballRef.current.position.y += ballVelocity.current.y * delta
       ballRef.current.position.z += ballVelocity.current.z * delta
 
-      // Check for floor collision
+      // check for floor collision
       if (ballRef.current.position.y < floorY) {
         ballRef.current.position.y = floorY // Prevent going through floor
         
-        // Bounce with energy loss
+        // bounce with energy loss
         if (Math.abs(ballVelocity.current.y) > 0.1) {
           ballVelocity.current.y = -ballVelocity.current.y * bounceFactor
           // Reduce horizontal velocity with each bounce (friction)
           ballVelocity.current.x *= 0.9
           ballVelocity.current.z *= 0.9
         } else {
-          // Stop animation when ball nearly stops
+          // stop animation when ball nearly stops
           us_setBallAnimating(false)
-          // Reset ball position
+          // reset ball position
           // ballRef.current.position.set(ballStartPos.x, ballStartPos.y, ballStartPos.z)
         }
       }
 
-      // Add rotation to the ball as it moves
+      // add rotation to the ball as it moves
       ballRef.current.rotation.x += ballVelocity.current.x * delta * 2
       ballRef.current.rotation.z += ballVelocity.current.z * delta * 2
 
-      if (newspaperRef.current) {
-        if (!(newspaperRotation.current < -1.7)) {
-          newspaperRotation.current -= ballVelocity.current.x * delta * 2
-          newspaperRef.current.rotation.set(newspaperRotation.current*2.4,0,0)
-        }
-      }
-
+      // book page animation on mouse over
+      bookPageRotation.current.x += 0.01 * delta * 2
+      bookPageRotation.current.z += 0.01 * delta * 2
     }
   })
 
@@ -297,30 +285,39 @@ export default function Room({...props}): JSX.Element {
   const Book = ({...props}): JSX.Element => {
     return (
       <group position={props.position} rotation={props.rotation ? props.rotation : [0,0,0]}>
-        {/* Right Cover */}
-        {Box({
-          position: [0, 0, -0.03],
-          geometry: props.rightCoverGeometry,
-          color: props.rightCoverColor
-        })}
-        {/* Pages */}
-        {Box({
-          position: [0, 0, 0],
-          geometry: props.pagesGeometry,
-          color: props.pagesColor
-        })}
-        {/* Left Cover */}
-        {Box({
-          position: [0, 0, 0.03],
-          geometry: props.leftCoverGeometry,
-          color: props.leftCoverColor
-        })}
-        {/* Spine */}
-        {Box({
-          position: [0.1, 0, 0],
-          geometry: props.spineGeometry,
-          color: props.spineColor
-        })}
+        {/* <group position={props.position ? props.bookPagePosition : [0,0,0]} rotation={props.bookPageRotation ? props.bookPageRotation : [0,0,0]}> */}
+          {/* Right Cover */}
+          {Box({
+            position: [0, 0, -0.03],
+            geometry: props.rightCoverGeometry,
+            color: props.rightCoverColor,
+            onPointerOver: props.onPointerOver ? props.onPointerOver : null
+          })}
+          {/* Pages */}
+          {Box({
+            position: [0, 0, 0],
+            geometry: props.pagesGeometry,
+            color: props.pagesColor
+          })}
+          {/* Spine */}
+          {Box({
+            position: [0.1, 0, 0],
+            geometry: props.spineGeometry,
+            color: props.spineColor
+          })}
+        {/* </group> */}
+          {/* Front pages that will be visible when book is open */}
+          {Box({
+            position: [0, 0, 0],
+            geometry: props.pagesGeometry,
+            color: props.pagesColor
+          })}
+          {/* Left Cover */}
+          {Box({
+            position: [0, 0, 0.03],
+            geometry: props.leftCoverGeometry,
+            color: props.leftCoverColor
+          })}
       </group>
     )
   }
@@ -1045,7 +1042,7 @@ export default function Room({...props}): JSX.Element {
       <ambientLight intensity={0.5} />
       <directionalLight position={[0, 5, -5]} intensity={1} />
       {/* Floor */}
-      {Box({position: [0,-0.21,0], geometry: [5.1, 0.5, 5.1], color: COLOR_PALETTE.test })}
+      {Box({position: [0,0,0], geometry: [5.1, 0.1, 5.1], color: COLOR_PALETTE.test })}
       {/* Walls */}
       {/* Right Wall */}
       {Box({position: [-1.62,0.9,-2.5], geometry: [1.85,1.75,0.1], color: COLOR_PALETTE.test })}
@@ -1213,6 +1210,21 @@ export default function Room({...props}): JSX.Element {
         spineGeometry: [0.01,0.3,0.08],
         spineColor: COLOR_PALETTE.darkBlue,
       })}
+      {Book({
+        rotation: [Math.PI/2, 0, -Math.PI/2],
+        position: [-2.2, 3.75, 0],
+        rightCoverGeometry: [0.2,0.3,0.02],
+        rightCoverColor: COLOR_PALETTE.lightBlue,
+        pagesGeometry: [0.2,0.28,0.05],
+        pagesColor: COLOR_PALETTE.white,
+        leftCoverGeometry: [0.2,0.3,0.02],
+        leftCoverColor: COLOR_PALETTE.lightBlue,
+        spineGeometry: [0.01,0.3,0.08],
+        spineColor: COLOR_PALETTE.lightBlue,
+        bookPagePosition: bookPagePosition.current,
+        bookPageRotation: bookPageRotation.current,
+        onPointerOver: handleBookMouseOver
+      })}
       {LacrosseStick({position: [-2,0.54,-0.55], rotation: [2.6, -2*Math.PI, -Math.PI]})}
       {/* Lacrosse Ball */}
       <mesh 
@@ -1223,10 +1235,6 @@ export default function Room({...props}): JSX.Element {
         <sphereGeometry args={[0.06]} />
         <meshPhongMaterial color={COLOR_PALETTE.trueWhite} />
       </mesh>
-      {/* Newspaper */}
-      {Box({position: [-1.3, 0.05, -0.6], geometry: [0.5,0.02,0.5], rotation: [0, Math.PI/2, 0], color: COLOR_PALETTE.gray})}
-      {/* @ts-expect-error directive here */}
-      <NewsPaperPage ref={newspaperRef} position={[-1.3, 0.05, -0.6]} geometry={[0.5,0.02,0.5]} color={COLOR_PALETTE.gray}/>
       {/* Windows */}
       {/* {Box({position: [0.025, 2.5, -2.48], geometry: [1.6, 1.5, 0.05], color: COLOR_PALETTE.white, transparent: true, opacity: 0.2})} */}
       {/* {Box({position: [-2.7, 2.5, 1.1], geometry: [0.8, 1.5, 0.05], color: COLOR_PALETTE.white, transparent: true, opacity: 0.2, rotation: [0, Math.PI/3, 0]})} */}
