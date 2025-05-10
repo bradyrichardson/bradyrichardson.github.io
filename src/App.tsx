@@ -2,17 +2,27 @@ import './App.css'
 import { BakeShadows, Bounds, OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import Room from './components/Room'
+import Start from './components/Start'
+import { useState } from 'react'
 
 function App() {
+const [us_isStartPage, us_setIsStartPage] = useState<boolean>(true)
+
+document.addEventListener('click', (e) => {
+    console.log('click', e)
+    us_setIsStartPage(false)
+  })
+
   return (
+    <>
     <Canvas orthographic shadows dpr={[1, 2]} camera={{ position: [10, 10, 10], zoom: 10 }} style={{height: window.innerHeight, width: window.innerWidth, display: 'flex', justifySelf: 'center', alignSelf: 'center'}}>
-      <color attach="background" args={['#000000']} />
+    <color attach="background" args={['#000000']} />
       {/* <ambientLight intensity={0.01} /> */}
       {/* <hemisphereLight intensity={0.125} color="#8040df" groundColor="red" /> */}
       {/* <spotLight castShadow color="orange" intensity={2} position={[0, 7, -6]} angle={90} penumbra={1} shadow-mapSize={[128, 128]} shadow-bias={0.00005}/> */}
 
       <Bounds fit clip observe margin={1}>
-        <Room />
+        {!us_isStartPage ? <Room /> : <Start /> }
       </Bounds>
       <BakeShadows />
 
@@ -34,6 +44,7 @@ function App() {
         <meshPhongMaterial opacity={1} color="#6B6B6B" /> 
       </mesh>
     </Canvas>
+    </>
   )
 }
 

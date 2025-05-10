@@ -1,7 +1,19 @@
-import { useFrame } from "@react-three/fiber";
-import { JSX, useRef, useState, Fragment, forwardRef } from "react";
+import { useFrame, useThree } from "@react-three/fiber"
+import { JSX, useRef, useState, Fragment, forwardRef, useEffect } from "react"
 import * as THREE from 'three'
-import { luminance } from "three/tsl";
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js'
+import { FontLoader } from "three/examples/jsm/Addons.js"
+import { extend } from '@react-three/fiber'
+
+// Extend Three.js with TextGeometry
+extend({ TextGeometry })
+
+// Add this type declaration
+declare module '@react-three/fiber' {
+  interface ThreeElements {
+    textGeometry: any // or more specific type if needed
+  }
+}
 
 export default function Room({...props}): JSX.Element {
   const group = useRef<THREE.Group>(null)
@@ -32,7 +44,15 @@ export default function Room({...props}): JSX.Element {
   const leftRightWindowRef = useRef<THREE.Group>(null)
   const [us_bookOpen, us_setBookOpen] = useState(false)
   const [us_stringLightsOn, us_setStringLightsOn] = useState(false)
-
+  const [projectsFont, setProjectsFont] = useState<any>(null)
+  const projectDisplayBoardOneRef = useRef<THREE.Mesh>(null)
+  const projectDisplayBoardTwoRef = useRef<THREE.Mesh>(null)
+  const projectDisplayBoardThreeRef = useRef<THREE.Mesh>(null)
+  const projectDisplayBoardFourRef = useRef<THREE.Mesh>(null)
+  const projectDisplayBoardOneIsAnimating = useRef(false)
+  const projectDisplayBoardTwoIsAnimating = useRef(false)
+  const projectDisplayBoardThreeIsAnimating = useRef(false)
+  const projectDisplayBoardFourIsAnimating = useRef(false)
   const COLOR_PALETTE = {
     'trueWhite': '#ffffff',
     'black': '#0f1626',
@@ -52,10 +72,32 @@ export default function Room({...props}): JSX.Element {
     'silver': '#818589',
     'lightBeige': '#F5F5DC',
     'lightYellow': '#FFFFC5',
+    'pink': '#FF8DA1',
+    'canaryYellow': '#FFEF00',
+    'darkBrown': '#5C4033'
   }
 
+  // const cameraDrawerOne = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+  // cameraDrawerOne.position.set(20, 20, 20)
+  // document.addEventListener('mousemove', (e) => {
+  //   mouseX.current = (e.clientX / window.innerWidth) * 5 - 2.5
+  //   mouseY.current = ((window.innerHeight - e.clientY) / window.innerHeight) * 5 + 1
+  // })
+
+  // state.camera.position.set(1, 0, 1)
+
+  // const camera = state.camera
+  // state.scene.add(cameraDrawerOne)
+  // useFrame(() => {
+  //   const boundedX = Math.max(-2.5, Math.min(2.5, mouseX.current))
+  //   const boundedY = Math.max(-2.5, Math.min(2.5, mouseY.current))
+    
+  //   state.camera.lookAt(boundedX, boundedY, 0)
+  // })
+
+
   const handleLampMouseOver = () => {
-    us_setLightOne(!us_lightOne)
+      us_setLightOne(!us_lightOne)
   }
 
   const handleLaptopMouseOver = () => {
@@ -63,23 +105,100 @@ export default function Room({...props}): JSX.Element {
     us_setLaptopOn(!us_laptopOn)
   }
 
-  const handleDrawerMouseOver = (targetPosition: React.RefObject<THREE.Vector3>) => {
-    if (targetPosition.current) {
-      targetPosition.current.x = 0.6 // Move drawer out
+  const handleDrawerClick = (targetPosition: React.RefObject<THREE.Vector3>, drawerNumber: number) => {
+    const drawers = [targetPositionOne, targetPositionTwo, targetPositionThree, targetPositionFour]
+
+    // move drawers
+    if (targetPosition.current.x === 0) {
+      targetPosition.current.x = 0.6 // move drawer out
+
+      // close other drawers if they are open
+      drawers.forEach((target, drawerNum) => {
+        if (target.current.x === 0.6 && drawerNum + 1 !== drawerNumber) {
+          target.current.x = 0
+        }
+      })
+    } else {
+      targetPosition.current.x = 0 // move drawer in
+    }
+
+    // animate project display board
+    switch (drawerNumber) {
+      case 1:
+        projectDisplayBoardOneIsAnimating.current = true
+        break
+      case 2:
+        projectDisplayBoardTwoIsAnimating.current = true
+        break
+      case 3:
+        projectDisplayBoardThreeIsAnimating.current = true
+        break
+      case 4:
+        projectDisplayBoardFourIsAnimating.current = true
+        break
+      default:
+        break
+    }
+
+    // switch camera based on drawer number
+    switch (drawerNumber) {
+      case 1:
+        // state.set({...state, camera: cameraDrawerOne})
+        break
+      case 2:
+        // state.camera.position.set(0, 0.583, 0)
+        break
+      case 3:
+        // state.camera.position.set(0, 0.167, 0)
+        break
+      case 4:
+        // state.camera.position.set(0, -0.25, 0)
+        break
+      default:
+        break
     }
   }
 
-  const handleDrawerMouseOut = (targetPosition: React.RefObject<THREE.Vector3>) => {
-    if (targetPosition.current) {
-      targetPosition.current.x = 0 // Move drawer back in
-    }
+  const handleProjectDisplayBoardClick = (link: string, boardNumber: number) => {
+    if (projectDisplayBoardOneRef.current && projectDisplayBoardTwoRef.current && projectDisplayBoardThreeRef.current && projectDisplayBoardFourRef.current) {
+      switch (boardNumber) {
+        case 1:
+          // the reason we check if the y position is greater than the start position is to determine
+          // if the board is currently being displayed...if it is, then we want to open the link
+          // but if it's not, then we don't want to open the link...the issue is that clicks in
+          // threeJS will go through objects and click on the boards even if they are not currently being displayed
+          // FIXME: checks not working yet
+          if (projectDisplayBoardOneRef.current.position.y > displayBoardStartPosition.y + 0.05) {
+            window.open(link, '_blank')
+          }
+          break
+        case 2:
+          if (projectDisplayBoardTwoRef.current.position.y > displayBoardStartPosition.y + 0.05) {
+            window.open(link, '_blank')
+          }
+          break
+        case 3:
+          if (projectDisplayBoardThreeRef.current.position.y > displayBoardStartPosition.y + 0.05) {
+            window.open(link, '_blank')
+          }
+          break
+        case 4:
+          if (projectDisplayBoardFourRef.current.position.y > displayBoardStartPosition.y + 0.05) {
+            window.open(link, '_blank')
+          }
+          break
+        default:
+          break
+        }
+      }
   }
 
   const handleLacrosseBallMouseOver = () => {
     if (!us_ballAnimating && !us_animationTriggered) {
       us_setAnimationTriggered(true)
       us_setBallAnimating(true)
-      // Initial velocity when ball leaves stick
+
+      // initial velocity when ball leaves stick
       ballVelocity.current = { x: 0.5, y: -1, z: 0.3 }
     }
   }
@@ -99,7 +218,7 @@ export default function Room({...props}): JSX.Element {
   }
 
   useFrame((_, delta) => {
-    // drawer animation on mouse over
+    // drawer animation on click
     if (drawerOneRef.current && targetPositionOne.current) {
       drawerOneRef.current.position.lerp(targetPositionOne.current, delta * 5)
     }
@@ -155,7 +274,7 @@ export default function Room({...props}): JSX.Element {
     return (
         <mesh position={props.position} onClick={props.onClick ? props.onClick : null} rotation={props.rotation ? props.rotation : [0,0,0] } onPointerOver={props.onPointerOver ? props.onPointerOver : null}>
           <boxGeometry args={props.geometry}/>
-          <meshToonMaterial color={props.color} opacity={props.opacity ? props.opacity : 1} transparent={props.transparent ? props.transparent : false} side={THREE.DoubleSide}/>
+          <meshToonMaterial color={props.color} opacity={props.opacity ? props.opacity : 1} transparent={props.transparent ? props.transparent : false} side={THREE.DoubleSide} emissive={props.emissive} emissiveIntensity={props.emissiveIntensity} />
       </mesh>
     )
   }
@@ -170,7 +289,7 @@ export default function Room({...props}): JSX.Element {
     return (
       <mesh position={props.position} onClick={props.onClick ? props.onClick : null} onPointerOver={props.onPointerOver ? props.onPointerOver : null}>
         <sphereGeometry args={props.radius}/>
-        <meshToonMaterial color={props.color} opacity={props.opacity} transparent={props.transparent} shininess={props.shininess} specular={props.specular}/>
+        <meshToonMaterial color={props.color} opacity={props.opacity} transparent={props.transparent}/>
       </mesh>
     )
   }
@@ -179,7 +298,7 @@ export default function Room({...props}): JSX.Element {
     return (
       <mesh position={props.position} onClick={props.onClick ? props.onClick : null}>
         <cylinderGeometry args={[props.radiusTop, props.radiusBottom, props.height]}/>
-        <meshToonMaterial color={props.color} opacity={props.opacity} transparent={props.transparent} shininess={props.shininess} specular={props.specular}/>
+        <meshToonMaterial color={props.color} opacity={props.opacity} transparent={props.transparent}/>
       </mesh>
     )
   }
@@ -211,16 +330,16 @@ export default function Room({...props}): JSX.Element {
     )
   }
 
-  const pillowShape = new THREE.Shape();
-    pillowShape.moveTo(-0.3, -0.1);
-    pillowShape.quadraticCurveTo(-0.3, -0.15, -0.25, -0.15);
-    pillowShape.lineTo(0.25, -0.15);
-    pillowShape.quadraticCurveTo(0.3, -0.15, 0.3, -0.1);
-    pillowShape.lineTo(0.3, 0.1);
-    pillowShape.quadraticCurveTo(0.3, 0.15, 0.25, 0.15);
-    pillowShape.lineTo(-0.25, 0.15);
-    pillowShape.quadraticCurveTo(-0.3, 0.15, -0.3, 0.1);
-    pillowShape.lineTo(-0.3, -0.1);
+  const pillowShape = new THREE.Shape()
+    pillowShape.moveTo(-0.3, -0.1)
+    pillowShape.quadraticCurveTo(-0.3, -0.15, -0.25, -0.15)
+    pillowShape.lineTo(0.25, -0.15)
+    pillowShape.quadraticCurveTo(0.3, -0.15, 0.3, -0.1)
+    pillowShape.lineTo(0.3, 0.1)
+    pillowShape.quadraticCurveTo(0.3, 0.15, 0.25, 0.15)
+    pillowShape.lineTo(-0.25, 0.15)
+    pillowShape.quadraticCurveTo(-0.3, 0.15, -0.3, 0.1)
+    pillowShape.lineTo(-0.3, -0.1)
 
   const pillowExtrudeSettings = {
     steps: 5,
@@ -230,29 +349,29 @@ export default function Room({...props}): JSX.Element {
     bevelSize: 0.2,
     bevelOffset: 0.05,
     bevelSegments: 20
-  };
+  }
 
-  const bedShape = new THREE.Shape();
-    bedShape.moveTo(-0.75, -1.5);
-    bedShape.quadraticCurveTo(-0.75, -1.55, -0.7, -1.55);  // slight round corner
-    bedShape.lineTo(0.7, -1.55);
-    bedShape.quadraticCurveTo(0.75, -1.55, 0.75, -1.5);    // slight round corner
-    bedShape.lineTo(0.75, 1.5);
-    bedShape.quadraticCurveTo(0.75, 1.55, 0.7, 1.55);      // slight round corner
-    bedShape.lineTo(-0.7, 1.55);
-    bedShape.quadraticCurveTo(-0.75, 1.55, -0.75, 1.5);    // slight round corner
-    bedShape.lineTo(-0.75, -1.5);
+  const bedShape = new THREE.Shape()
+    bedShape.moveTo(-0.75, -1.5)
+    bedShape.quadraticCurveTo(-0.75, -1.55, -0.7, -1.55)  // slight round corner
+    bedShape.lineTo(0.7, -1.55)
+    bedShape.quadraticCurveTo(0.75, -1.55, 0.75, -1.5)    // slight round corner
+    bedShape.lineTo(0.75, 1.5)
+    bedShape.quadraticCurveTo(0.75, 1.55, 0.7, 1.55)      // slight round corner
+    bedShape.lineTo(-0.7, 1.55)
+    bedShape.quadraticCurveTo(-0.75, 1.55, -0.75, 1.5)    // slight round corner
+    bedShape.lineTo(-0.75, -1.5)
 
-  const coversShape = new THREE.Shape();
-    coversShape.moveTo(-0.75, -0.85);        // Left bottom corner
-    coversShape.quadraticCurveTo(-0.75, -0.9, -0.7, -0.9);     // Round corner
-    coversShape.lineTo(0.7, -0.9);           // Bottom edge
-    coversShape.quadraticCurveTo(0.75, -0.9, 0.75, -0.85);     // Round corner
-    coversShape.lineTo(0.75, 1.5);           // Right edge
-    coversShape.quadraticCurveTo(0.75, 1.55, 0.7, 1.55);       // Round corner
-    coversShape.lineTo(-0.7, 1.55);          // Top edge
-    coversShape.quadraticCurveTo(-0.75, 1.55, -0.75, 1.5);     // Round corner
-    coversShape.lineTo(-0.75, -0.85);        // Back to start
+  const coversShape = new THREE.Shape()
+    coversShape.moveTo(-0.75, -0.85)        // Left bottom corner
+    coversShape.quadraticCurveTo(-0.75, -0.9, -0.7, -0.9)     // Round corner
+    coversShape.lineTo(0.7, -0.9)           // Bottom edge
+    coversShape.quadraticCurveTo(0.75, -0.9, 0.75, -0.85)     // Round corner
+    coversShape.lineTo(0.75, 1.5)           // Right edge
+    coversShape.quadraticCurveTo(0.75, 1.55, 0.7, 1.55)       // Round corner
+    coversShape.lineTo(-0.7, 1.55)          // Top edge
+    coversShape.quadraticCurveTo(-0.75, 1.55, -0.75, 1.5)     // Round corner
+    coversShape.lineTo(-0.75, -0.85)        // Back to start
 
   const coversExtrudeSettings: THREE.ExtrudeGeometryOptions = {
     steps: 1,
@@ -262,18 +381,18 @@ export default function Room({...props}): JSX.Element {
     bevelSize: 0.08,
     bevelOffset: 0,
     bevelSegments: 3
-  };
+  }
 
-  const coverFoldShape = new THREE.Shape();
-    coverFoldShape.moveTo(-0.77, 0.85);      // Left bottom corner
-    coverFoldShape.quadraticCurveTo(-0.77, 0.8, -0.7, 0.8);    // Round corner
-    coverFoldShape.lineTo(0.7, 0.8);         // Bottom edge
-    coverFoldShape.quadraticCurveTo(0.77, 0.8, 0.77, 0.85);    // Round corner
-    coverFoldShape.lineTo(0.77, 1.1);        // Right edge
-    coverFoldShape.quadraticCurveTo(0.77, 1.15, 0.7, 1.15);    // Round corner
-    coverFoldShape.lineTo(-0.7, 1.15);       // Top edge
-    coverFoldShape.quadraticCurveTo(-0.77, 1.15, -0.77, 1.1);  // Round corner
-    coverFoldShape.lineTo(-0.77, 0.85);      // Back to start
+  const coverFoldShape = new THREE.Shape()
+    coverFoldShape.moveTo(-0.77, 0.85)      // Left bottom corner
+    coverFoldShape.quadraticCurveTo(-0.77, 0.8, -0.7, 0.8)    // Round corner
+    coverFoldShape.lineTo(0.7, 0.8)         // Bottom edge
+    coverFoldShape.quadraticCurveTo(0.77, 0.8, 0.77, 0.85)    // Round corner
+    coverFoldShape.lineTo(0.77, 1.1)        // Right edge
+    coverFoldShape.quadraticCurveTo(0.77, 1.15, 0.7, 1.15)    // Round corner
+    coverFoldShape.lineTo(-0.7, 1.15)       // Top edge
+    coverFoldShape.quadraticCurveTo(-0.77, 1.15, -0.77, 1.1)  // Round corner
+    coverFoldShape.lineTo(-0.77, 0.85)      // Back to start
 
   const coverFoldSettings: THREE.ExtrudeGeometryOptions = {
     steps: 1,
@@ -283,7 +402,7 @@ export default function Room({...props}): JSX.Element {
     bevelSize: 0.11,        // Larger bevel for softer edges
     bevelOffset: 0,
     bevelSegments: 3
-  };
+  }
 
   const bedExtrudeSettings: THREE.ExtrudeGeometryOptions = {
     steps: 1,
@@ -293,7 +412,7 @@ export default function Room({...props}): JSX.Element {
     bevelSize: 0.05,
     bevelOffset: 0,
     bevelSegments: 3
-  };
+  }
 
   const Book = ({...props}): JSX.Element => {
     return (
@@ -345,7 +464,7 @@ export default function Room({...props}): JSX.Element {
       new THREE.Vector2(0.49, -0.39),   // Outer wall bottom
       new THREE.Vector2(0.29, -0.01),   // Outer wall top
       new THREE.Vector2(0.1, -0.01)     // Inner wall top
-    ];
+    ]
 
     return (
       <group position={props.position} rotation={props.rotation ? props.rotation : [0,0,0]}>
@@ -363,7 +482,7 @@ export default function Room({...props}): JSX.Element {
         {/* Lampshade glow */}
         <pointLight
           position={[0, 0.3, 0]}
-          intensity={!us_lightOne ? 0.8 : 0}
+          intensity={!us_lightOne ? 0.4 : 0}
           color={COLOR_PALETTE.orange}
           distance={1}
         />
@@ -371,7 +490,7 @@ export default function Room({...props}): JSX.Element {
         {/* Existing light for illumination */}
         {PointLight({
           position: [0.3, 0, 0.1],
-          intensity: us_lightOne ? 10 : 0,
+          intensity: us_lightOne ? 6 : 0,
           color: COLOR_PALETTE.lightYellow
         })}
         {/* Bulb */}
@@ -433,7 +552,7 @@ export default function Room({...props}): JSX.Element {
         {/* Keys - 5 rows of 12 keys */}
         {[...Array(5)].map((_, row) =>
           [...Array(12)].map((_, col) => {
-            const keyId = `key-${row}-${col}`;
+            const keyId = `key-${row}-${col}`
             return (
               <Fragment key={keyId}>
                 {Box({
@@ -468,85 +587,86 @@ export default function Room({...props}): JSX.Element {
   const Laptop = ({...props}): JSX.Element => {
     // Create canvas textures once, outside the render
     const linkedInTexture = new THREE.CanvasTexture((() => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d', { alpha: true });
-      canvas.width = 128;
-      canvas.height = 128;
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d', { alpha: true })
+      canvas.width = 128
+      canvas.height = 128
+
       if (ctx) {
         // Clear the canvas with transparent background
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.globalCompositeOperation = 'source-over'
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
         
         // Draw rounded rectangle for background
-        ctx.fillStyle = '#0077B5';
-        const radius = 15;
-        const x = 24;
-        const y = 24;
-        const width = 80;
-        const height = 80;
+        ctx.fillStyle = '#0077B5'
+        const radius = 15
+        const x = 24
+        const y = 24
+        const width = 80
+        const height = 80
         
         // Background
-        ctx.beginPath();
-        ctx.moveTo(x + radius, y);
-        ctx.lineTo(x + width - radius, y);
-        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-        ctx.lineTo(x + width, y + height - radius);
-        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-        ctx.lineTo(x + radius, y + height);
-        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-        ctx.lineTo(x, y + radius);
-        ctx.quadraticCurveTo(x, y, x + radius, y);
-        ctx.fill();
+        ctx.beginPath()
+        ctx.moveTo(x + radius, y)
+        ctx.lineTo(x + width - radius, y)
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius)
+        ctx.lineTo(x + width, y + height - radius)
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height)
+        ctx.lineTo(x + radius, y + height)
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius)
+        ctx.lineTo(x, y + radius)
+        ctx.quadraticCurveTo(x, y, x + radius, y)
+        ctx.fill()
   
 
         // Draw "in" text
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = 'bold 80px Arial';
-        ctx.fillText('in', 30, 90);
+        ctx.fillStyle = '#FFFFFF'
+        ctx.font = 'bold 80px Arial'
+        ctx.fillText('in', 30, 90)
       }
-      return canvas;
-    })());
+      return canvas
+    })())
 
     const githubTexture = new THREE.CanvasTexture((() => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d', { alpha: true });
-      canvas.width = 128;
-      canvas.height = 128;
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d', { alpha: true })
+      canvas.width = 128
+      canvas.height = 128
       if (ctx) {
         // Clear the canvas with transparent background
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.globalCompositeOperation = 'source-over'
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
         
         // Draw button background with rounded corners
-        ctx.strokeStyle = '#000000';
-        ctx.lineWidth = 2;
-        const radius = 15;
-        const x = 7;
-        const y = 24;
-        const width = 115;
-        const height = 80;
+        ctx.strokeStyle = '#000000'
+        ctx.lineWidth = 2
+        const radius = 15
+        const x = 7
+        const y = 24
+        const width = 115
+        const height = 80
         
-        ctx.beginPath();
-        ctx.moveTo(x + radius, y);
-        ctx.lineTo(x + width - radius, y);
-        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-        ctx.lineTo(x + width, y + height - radius);
-        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-        ctx.lineTo(x + radius, y + height);
-        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-        ctx.lineTo(x, y + radius);
-        ctx.quadraticCurveTo(x, y, x + radius, y);
-        ctx.fillStyle = '#000000';
-        ctx.fill();
+        ctx.beginPath()
+        ctx.moveTo(x + radius, y)
+        ctx.lineTo(x + width - radius, y)
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius)
+        ctx.lineTo(x + width, y + height - radius)
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height)
+        ctx.lineTo(x + radius, y + height)
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius)
+        ctx.lineTo(x, y + radius)
+        ctx.quadraticCurveTo(x, y, x + radius, y)
+        ctx.fillStyle = '#000000'
+        ctx.fill()
         
         // Draw "GitHub" text
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 32px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('GitHub', 64, 74);
+        ctx.fillStyle = '#ffffff'
+        ctx.font = 'bold 32px Arial'
+        ctx.textAlign = 'center'
+        ctx.fillText('GitHub', 64, 74)
       }
-      return canvas;
-    })());
+      return canvas
+    })())
     
     
 
@@ -635,10 +755,6 @@ export default function Room({...props}): JSX.Element {
         // @ts-expect-error directive here
         rotation={props.rotation ? props.rotation : [0,0,0]}
         ref={ref}
-        // @ts-expect-error directive here
-        onPointerOver={props.onPointerOver}
-        // @ts-expect-error directive here
-        onPointerOut={props.onPointerOut}
       >
         {Box({
           position: [0, 0, 0],
@@ -651,31 +767,34 @@ export default function Room({...props}): JSX.Element {
         {Box({
           position: [0.82, 0.25, 0],
           geometry: [0.1, 0.1, 0.3],
-          color: COLOR_PALETTE.black
+          color: COLOR_PALETTE.black,
+          onClick: props.onClick,
+          emissive: !us_lightOne ? COLOR_PALETTE.orange : COLOR_PALETTE.black,
+          emissiveIntensity: !us_lightOne ? 0.5 : 0
         })}
         {/* Drawer Outer Wall */}
         {Box({
           position: [0.77, 0.2, 0],
           geometry: [0.05, 0.417, 1.4],
-          color: COLOR_PALETTE.beige
+          color: props.color,
         })}
         {/* Drawer Back Inner Wall */}
         {Box({
           position: [0, 0.2, 0],
           geometry: [0.05, 0.409, 1.4],
-          color: COLOR_PALETTE.beige
+          color: props.color
         })}
         {/* Drawer Right Inner Wall */}
         {Box({
           position: [0.1, 0.18, -0.625],
           geometry: [1.3, 0.38, 0.05],
-          color: COLOR_PALETTE.beige
+          color: props.color
         })}
         {/* Drawer Left Inner Wall */}
         {Box({
           position: [0.1, 0.18, 0.625],
           geometry: [1.3, 0.38, 0.05],
-          color: COLOR_PALETTE.beige,
+          color: props.color,
           // transparent: true,
           // opacity: 0.5
         })}
@@ -693,37 +812,33 @@ export default function Room({...props}): JSX.Element {
           // @ts-expect-error directive here
           position={[0, 1, 0]}
           geometry={[1.4, 0.01, 1.25]}
-          color={COLOR_PALETTE.lightBeige}
+          color={COLOR_PALETTE.darkBrown}
           ref={drawerOneRef}
-          onPointerOver={() => handleDrawerMouseOver(targetPositionOne)}
-          onPointerOut={() => handleDrawerMouseOut(targetPositionOne)}
+          onClick={() => handleDrawerClick(targetPositionOne, 1)}
         />
         <Drawer
           // @ts-expect-error directive here
           position={[0, 0.583, 0]}
           geometry={[1.4, 0.01, 1.25]}
-          color={COLOR_PALETTE.lightBeige}
+          color={COLOR_PALETTE.darkBrown}
           ref={drawerTwoRef}
-          onPointerOver={() => handleDrawerMouseOver(targetPositionTwo)}
-          onPointerOut={() => handleDrawerMouseOut(targetPositionTwo)}
+          onClick={() => handleDrawerClick(targetPositionTwo, 2)}
         />
         <Drawer
           // @ts-expect-error directive here
           position={[0, 0.167, 0]}
           geometry={[1.4, 0.01, 1.25]}
-          color={COLOR_PALETTE.lightBeige}
+          color={COLOR_PALETTE.darkBrown}
           ref={drawerThreeRef}
-          onPointerOver={() => handleDrawerMouseOver(targetPositionThree)}
-          onPointerOut={() => handleDrawerMouseOut(targetPositionThree)}
+          onClick={() => handleDrawerClick(targetPositionThree, 3)}
         />
         <Drawer
           // @ts-expect-error directive here
           position={[0, -0.25, 0]}
           geometry={[1.4, 0.01, 1.25]}
-          color={COLOR_PALETTE.lightBeige}
+          color={COLOR_PALETTE.darkBrown}
           ref={drawerFourRef}
-          onPointerOver={() => handleDrawerMouseOver(targetPositionFour)}
-          onPointerOut={() => handleDrawerMouseOut(targetPositionFour)}
+          onClick={() => handleDrawerClick(targetPositionFour, 4)}
         />
       </group>
     )
@@ -1131,256 +1246,490 @@ export default function Room({...props}): JSX.Element {
         {/* Lights */}
         <StringLight position={[1.62, 3.8, -2.0]} color={COLOR_PALETTE.lightYellow} />
         <StringLight position={[1.62, 3.7, -1.5]} color={COLOR_PALETTE.lightYellow} />
-        <StringLight position={[1.62, 3.8, -1.0]} color={COLOR_PALETTE.lightYellow} />
+        {!props.isEnd ? <StringLight position={[1.62, 3.8, -1.0]} color={COLOR_PALETTE.lightYellow} /> : <></>}
         {/* <StringLight position={[1.62, 3.7, -0.5]} color={COLOR_PALETTE.white} />
         <StringLight position={[1.62, 3.8, 0]} color={COLOR_PALETTE.white} /> */}
       </group>
     )
   }
 
+  // Load the font when component mounts
+  useEffect(() => {
+    const loader = new FontLoader()
+    loader.load('./fonts/Roboto Condensed_Regular.json', (loadedFont) => {
+      setProjectsFont(loadedFont)
+    },
+    // Add success and error handlers
+    (xhr) => {
+      // console.log((xhr.loaded / xhr.total * 100) + '% loaded')
+    },
+    (error) => {
+      console.error('Font loading error:', error)
+    })
+  }, [])
+
+  const ProjectDisplayBoard = forwardRef(({...props}: {imgPath: string, rotation: THREE.Euler, position: THREE.Vector3, title: string, color: string, link: string, boardNumber: number}, ref): JSX.Element => {  
+    const texture = new THREE.TextureLoader().load(props.imgPath);
+
+    const displayBoardOneEndPosition = new THREE.Vector3(0,2.1,0.5)
+    const displayBoardTwoEndPosition = new THREE.Vector3(0.2,1.7,0.5)
+    const displayBoardThreeEndPosition = new THREE.Vector3(0.2,1.3,0.5)
+    const displayBoardFourEndPosition = new THREE.Vector3(0.2,0.9,0.5)
+    const lerpOpenDelta = 0.2
+    const lerpCloseDelta = 0.05
+    
+    // animate the project display boards when the corresponding drawer is moving
+    useFrame(() => {
+      // project display board one
+      if (projectDisplayBoardOneRef.current && projectDisplayBoardOneIsAnimating.current && targetPositionOne.current.x >= 0.59) {
+        projectDisplayBoardOneRef.current.position.lerp(displayBoardOneEndPosition, lerpOpenDelta)
+      }
+      else if (projectDisplayBoardOneRef.current && projectDisplayBoardOneIsAnimating.current && targetPositionOne.current.x < 0.59) {
+        projectDisplayBoardOneRef.current.position.lerp(displayBoardStartPosition, lerpCloseDelta)
+      }
+      else {
+        projectDisplayBoardOneIsAnimating.current = false
+      }
+
+      // project display board two
+      if (projectDisplayBoardTwoRef.current && projectDisplayBoardTwoIsAnimating.current && targetPositionTwo.current.x >= 0.59) {
+        projectDisplayBoardTwoRef.current.position.lerp(displayBoardTwoEndPosition, lerpOpenDelta)
+      }
+      else if (projectDisplayBoardTwoRef.current && projectDisplayBoardTwoIsAnimating.current && targetPositionTwo.current.x < 0.59) {
+        projectDisplayBoardTwoRef.current.position.lerp(displayBoardStartPosition, lerpCloseDelta)
+      }
+      else {
+        projectDisplayBoardTwoIsAnimating.current = false
+      }
+      
+      // project display board three
+      if (projectDisplayBoardThreeRef.current && projectDisplayBoardThreeIsAnimating.current && targetPositionThree.current.x >= 0.59) {
+        projectDisplayBoardThreeRef.current.position.lerp(displayBoardThreeEndPosition, lerpOpenDelta)
+      }
+      else if (projectDisplayBoardThreeRef.current && projectDisplayBoardThreeIsAnimating.current && targetPositionThree.current.x < 0.59) {
+        projectDisplayBoardThreeRef.current.position.lerp(displayBoardStartPosition, lerpCloseDelta)
+      }
+      else {
+        projectDisplayBoardThreeIsAnimating.current = false
+      }
+
+      // project display board four
+      if (projectDisplayBoardFourRef.current && projectDisplayBoardFourIsAnimating.current && targetPositionFour.current.x >= 0.59) {
+        projectDisplayBoardFourRef.current.position.lerp(displayBoardFourEndPosition, lerpOpenDelta)
+      }
+      else if (projectDisplayBoardFourRef.current && projectDisplayBoardFourIsAnimating.current && targetPositionFour.current.x < 0.59) {
+        projectDisplayBoardFourRef.current.position.lerp(displayBoardStartPosition, lerpCloseDelta)
+      }
+      else {
+        projectDisplayBoardFourIsAnimating.current = false
+      }
+    })
+
+    return (
+      <group rotation={props.rotation} position={props.position} ref={ref}>
+        { projectsFont &&
+        <mesh scale={[1.1, 1.1, 0.001]} {...props} position={[-2,0.5,0.5]}>
+          <textGeometry 
+                args={[
+                  props.title,
+                  {
+                    font: projectsFont,
+                    size: 0.12,
+                    height: 0.1,
+                    curveSegments: 12,
+                    bevelEnabled: true,
+                    bevelThickness: 0.01,
+                    bevelSize: 0.005,
+                  }
+                ]}
+              />
+              <meshBasicMaterial 
+                color={props.color} opacity={1} transparent={false}
+          />
+        </mesh>
+        }
+        <mesh {...props} onClick={() => {
+            handleProjectDisplayBoardClick(props.link, props.boardNumber)
+          }}>
+          <planeGeometry args={[0.5, 0.5]}/>
+          <meshBasicMaterial map={texture} />
+        </mesh>
+      </group>
+    )
+  })
+
+  const displayBoardStartPosition = new THREE.Vector3(-1.4, 0.1, 0.4)
+
   return (
-    <group ref={group} {...props} dispose={null}>
-      {/* <ambientLight intensity={0.5} /> */}
-      {/* <directionalLight position={[0, 5, -5]} intensity={1} /> */}
-      {/* Floor */}
-      {Box({position: [0,0,0], geometry: [5.1, 0.1, 5.1], color: COLOR_PALETTE.test })}
-      {/* Walls */}
-      {/* Right Wall */}
-      {Box({position: [-1.62,0.9,-2.5], geometry: [1.85,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
-      {Box({position: [-1.65,2.45,-2.5], geometry: [1.8,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
-      {Box({position: [-1.62,4.075,-2.5], geometry: [1.85,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
-      {Box({position: [1.675,2.45,-2.5], geometry: [1.75,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
-      {Box({position: [1.675,4.075,-2.5], geometry: [1.75,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
-      {Box({position: [1.675,0.9,-2.5], geometry: [1.75,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
-      {Box({position: [0,0.9,-2.5], geometry: [1.75,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
-      {Box({position: [0,4.075,-2.5], geometry: [1.75,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
-      {/* Left Wall */}
-      {Box({position: [-2.5, 0.9, -1.62], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
-      {Box({position: [-2.5, 2.45, -1.62], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
-      {Box({position: [-2.5, 4.075, -1.62], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
-      {Box({position: [-2.5, 2.45, 1.675], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
-      {Box({position: [-2.5, 4.075, 1.675], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
-      {Box({position: [-2.5, 0.9, 1.675], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
-      {Box({position: [-2.5, 0.9, 0], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
-      {Box({position: [-2.5, 4.075, 0], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
-      {/* Laptop */}
-      {Laptop({position: [-1.6, 1.06, -1.7], rotation: [0, -Math.PI/6, 0]})}
-      {/* Desk */}
-      {Box({position: [-2,1,-1.7], geometry: [1,0.1,1.6], color: COLOR_PALETTE.beige})}
-      {/* Desk Legs */}
-      {Box({position: [-2.4,0.5,-2.4], geometry: [0.1,1,0.1], color: COLOR_PALETTE.beige})}
-      {Box({position: [-2.4,0.5,-0.95], geometry: [0.1,1,0.1], color: COLOR_PALETTE.beige})}
-      {Box({position: [-1.55,0.5,-2.4], geometry: [0.1,1,0.1], color: COLOR_PALETTE.beige})}
-      {Box({position: [-1.55,0.5,-0.95], geometry: [0.1,1,0.1], color: COLOR_PALETTE.beige})}
-      {/* Lamp */}
-      {Lamp({position: [-1.8, 2.47, 1.799]})}
-      {/* Bed */}
-      {Extrude({
-        position: [1.7, 0.75, -.85],
-        shape: bedShape,
-        extrudeSettings: bedExtrudeSettings,
-        color: COLOR_PALETTE.white
-      })}
-      {/* Covers */}
-      {Extrude({
-        position: [1.7, 0.76, -.85],
-        shape: coversShape,
-        extrudeSettings: coversExtrudeSettings,
-        color: COLOR_PALETTE.darkBlue
-      })}
-      {/* Cover Fold */}
-      {Extrude({
-        position: [1.69, 0.778, -2.51],
-        shape: coverFoldShape,
-        extrudeSettings: coverFoldSettings,
-        color: COLOR_PALETTE.white
-      })}
-      {/* Bed Frame */}
-      {Box({position: [1.7, 0.25, -2.35], geometry: [1.55, 0.1, 0.05], color: COLOR_PALETTE.beige})}
-      {Box({position: [1.7, 0.25, -2.05], geometry: [1.55, 0.1, 0.05], color: COLOR_PALETTE.beige})}
-      {Box({position: [1.7, 0.25, -1.75], geometry: [1.55, 0.1, 0.05], color: COLOR_PALETTE.beige})}
-      {Box({position: [1.7, 0.25, -1.45], geometry: [1.55, 0.1, 0.05], color: COLOR_PALETTE.beige})}
-      {Box({position: [1.7, 0.25, -1.15], geometry: [1.55, 0.1, 0.05], color: COLOR_PALETTE.beige})}
-      {Box({position: [1.7, 0.25, -.85], geometry: [1.55, 0.1, 0.05], color: COLOR_PALETTE.beige})}
-      {Box({position: [1.7, 0.25, -.55], geometry: [1.55, 0.1, 0.05], color: COLOR_PALETTE.beige})}
-      {Box({position: [1.7, 0.25, -.25], geometry: [1.55, 0.1, 0.05], color: COLOR_PALETTE.beige})}
-      {Box({position: [1.7, 0.25, 0.05], geometry: [1.55, 0.1, 0.05], color: COLOR_PALETTE.beige})}
-      {Box({position: [1.7, 0.25, 0.35], geometry: [1.55, 0.1, 0.05], color: COLOR_PALETTE.beige})}
-      {Box({position: [1.7, 0.25, 0.65], geometry: [1.55, 0.1, 0.05], color: COLOR_PALETTE.beige})}
-      {/* Bed Frame Border */}
-      {Box({position: [2.5, 0.25, -0.85], geometry: [0.1, 0.1, 3.2], color: COLOR_PALETTE.beige})}
-      {Box({position: [0.89, 0.25, -0.85], geometry: [0.1, 0.1, 3.2], color: COLOR_PALETTE.beige})}
-      {Box({position: [1.696, 0.25, 0.72], geometry: [1.71, 0.1, 0.1], color: COLOR_PALETTE.beige})}
-      {Box({position: [1.696, 0.25, -2.4], geometry: [1.71, 0.1, 0.1], color: COLOR_PALETTE.beige})}
-      {/* Bed Legs */}
-      {Box({position: [0.89, 0.1, -2.4], geometry: [0.1, 0.25, 0.1], color: COLOR_PALETTE.beige})}
-      {Box({position: [2.499, 0.1, -2.4], geometry: [0.1, 0.25, 0.1], color: COLOR_PALETTE.beige})}
-      {Box({position: [0.89, 0.1, 0.72], geometry: [0.1, 0.25, 0.1], color: COLOR_PALETTE.beige})}
-      {Box({position: [2.499, 0.1, 0.72], geometry: [0.1, 0.25, 0.1], color: COLOR_PALETTE.beige})}
-      {/* Pillow */}
-      {Extrude({
-        position: [1.7, 0.98, -2],
-        shape: pillowShape,
-        extrudeSettings: pillowExtrudeSettings,
-        color: COLOR_PALETTE.white
-      })}
-      {/* Dresser */}
-      {Box({position: [-2.4, 1, 1.8], geometry: [0.1, 2, 1.498], color: COLOR_PALETTE.beige})}
-      {Box({position: [-1.8, 1, 1.1], geometry: [1.5, 2, 0.1], color: COLOR_PALETTE.beige})}
-      {Box({position: [-1.8, 1, 2.499], geometry: [1.5, 2, 0.1], color: COLOR_PALETTE.beige})}
-      {Box({position: [-1.8, 1.95, 1.799], geometry: [1.5, 0.1, 1.5], color: COLOR_PALETTE.beige})}
-      {Box({position: [-1.8, 1.95, 1.799], geometry: [1.5, 0.1, 1.5], color: COLOR_PALETTE.beige})}
-      {/* Drawers */}
-      {Drawers({position: [-1.8, 0.5, 1.799], rotation: [0, 0, 0]})}
-      {/* Bookshelf */}
-      {Box({position: [-2.45, 4, 0], geometry: [0.05, 0.6, 3], color: COLOR_PALETTE.beige, onMouseOver: () => {}})}
-      {Box({position: [-2.33, 4.3, 0], geometry: [0.4, 0.06, 3], color: COLOR_PALETTE.beige})}
-      {Box({position: [-2.33, 3.68, 0], geometry: [0.4, 0.06, 3], color: COLOR_PALETTE.beige})}
-      {Box({position: [-2.33, 4, 1.475], geometry: [0.4, 0.6, 0.05], color: COLOR_PALETTE.beige})}
-      {Box({position: [-2.33, 4, -1.475], geometry: [0.4, 0.6, 0.05], color: COLOR_PALETTE.beige})}
-      {/* Books */}
-      {Book({
-        rotation: [Math.PI/6, 0, 0],
-        position: [-2.33, 3.86, 1.35],
-        rightCoverGeometry: [0.2,0.3,0.02],
-        rightCoverColor: COLOR_PALETTE.darkOrange,
-        pagesGeometry: [0.2,0.28,0.05],
-        pagesColor: COLOR_PALETTE.white,
-        leftCoverGeometry: [0.2,0.3,0.02],
-        leftCoverColor: COLOR_PALETTE.darkOrange,
-        spineGeometry: [0.01,0.3,0.08],
-        spineColor: COLOR_PALETTE.darkOrange,
-      })}
-      {Book({
-        rotation: [0, 0, 0],
-        position: [-2.33, 3.86, 1.2],
-        rightCoverGeometry: [0.2,0.3,0.02],
-        rightCoverColor: COLOR_PALETTE.lightOrange,
-        pagesGeometry: [0.2,0.28,0.05],
-        pagesColor: COLOR_PALETTE.white,
-        leftCoverGeometry: [0.2,0.3,0.02],
-        leftCoverColor: COLOR_PALETTE.lightOrange,
-        spineGeometry: [0.01,0.3,0.08],
-        spineColor: COLOR_PALETTE.lightOrange,
-      })}
-      {Book({
-        rotation: [0, 0, 0],
-        position: [-2.33, 3.86, 1.12],
-        rightCoverGeometry: [0.2,0.3,0.02],
-        rightCoverColor: COLOR_PALETTE.orange,
-        pagesGeometry: [0.2,0.28,0.05],
-        pagesColor: COLOR_PALETTE.white,
-        leftCoverGeometry: [0.2,0.3,0.02],
-        leftCoverColor: COLOR_PALETTE.orange,
-        spineGeometry: [0.01,0.3,0.08],
-        spineColor: COLOR_PALETTE.orange,
-      })}
-      {Book({
-        rotation: [0, 0, 0],
-        position: [-2.33, 3.86, 1.04],
-        rightCoverGeometry: [0.2,0.3,0.02],
-        rightCoverColor: COLOR_PALETTE.lightGreen,
-        pagesGeometry: [0.2,0.28,0.05],
-        pagesColor: COLOR_PALETTE.white,
-        leftCoverGeometry: [0.2,0.3,0.02],
-        leftCoverColor: COLOR_PALETTE.lightGreen,
-        spineGeometry: [0.01,0.3,0.08],
-        spineColor: COLOR_PALETTE.lightGreen,
-      })}
-      {Book({
-        rotation: [0, 0, 0],
-        position: [-2.33, 3.86, 0.96],
-        rightCoverGeometry: [0.2,0.3,0.02],
-        rightCoverColor: COLOR_PALETTE.lightBlue,
-        pagesGeometry: [0.2,0.28,0.05],
-        pagesColor: COLOR_PALETTE.white,
-        leftCoverGeometry: [0.2,0.3,0.02],
-        leftCoverColor: COLOR_PALETTE.lightBlue,
-        spineGeometry: [0.01,0.3,0.08],
-        spineColor: COLOR_PALETTE.lightBlue,
-      })}
-      {Book({
-        rotation: [Math.PI/2, 0, 2*Math.PI/3],
-        position: [-2.2, 3.75, 0.72],
-        rightCoverGeometry: [0.2,0.3,0.02],
-        rightCoverColor: COLOR_PALETTE.darkBlue,
-        pagesGeometry: [0.2,0.28,0.05],
-        pagesColor: COLOR_PALETTE.white,
-        leftCoverGeometry: [0.2,0.3,0.02],
-        leftCoverColor: COLOR_PALETTE.darkBlue,
-        spineGeometry: [0.01,0.3,0.08],
-        spineColor: COLOR_PALETTE.darkBlue,
-      })}
-      {Book({
-        rotation: [Math.PI/2, 0, -Math.PI/2],
-        position: [-2.2, 3.75, 0],
-        rightCoverGeometry: [0.2,0.3,0.02],
-        rightCoverColor: COLOR_PALETTE.lightBlue,
-        pagesGeometry: [0.2,0.28,0.05],
-        pagesColor: COLOR_PALETTE.white,
-        leftCoverGeometry: [0.2,0.3,0.02],
-        leftCoverColor: COLOR_PALETTE.lightBlue,
-        spineGeometry: [0.01,0.3,0.08],
-        spineColor: COLOR_PALETTE.lightBlue,
-        bookPagePosition: bookPagePosition.current,
-        bookPageRotation: bookPageRotation.current,
-        onPointerOver: handleBookMouseOver
-      })}
-      {LacrosseStick({position: [-2,0.54,-0.55], rotation: [2.6, -2*Math.PI, -Math.PI]})}
-      {/* Lacrosse Ball */}
-      <mesh 
-        ref={ballRef}
-        position={[ballStartPos.x, ballStartPos.y, ballStartPos.z]} 
-        onPointerOver={handleLacrosseBallMouseOver}
-      >
-        <sphereGeometry args={[0.06]} />
-        <meshToonMaterial color={COLOR_PALETTE.trueWhite} />
-      </mesh>
-      {/* Windows */}
-      {/* {Box({position: [0.025, 2.5, -2.48], geometry: [1.6, 1.5, 0.05], color: COLOR_PALETTE.white, transparent: true, opacity: 0.2})} */}
-      {/* {Box({position: [-2.7, 2.5, 1.1], geometry: [0.8, 1.5, 0.05], color: COLOR_PALETTE.white, transparent: true, opacity: 0.2, rotation: [0, Math.PI/3, 0]})} */}
-      {/* {Box({position: [-2.7, 2.5, -1.025], geometry: [0.8, 1.5, 0.05], color: COLOR_PALETTE.white, transparent: true, opacity: 0.2, rotation: [0, -Math.PI/3, 0]})} */}
-       {/* Left Window Sill  */}
-       {Box({position: [-2.5, 1.8, 0.037], geometry: [0.5,0.1,1.6]})}
-       {/* Right Window Sill  */}
-       {Box({position: [0.012, 1.8, -2.5], geometry: [1.6,0.1,0.5]})}
-       {/* Left Window Frame */}
-       <WindowFrame position={ [0, 0, 0]} geometry={ [0.05, 1.5, 0.05]} rotation={ [0, 0, 0]} color={ COLOR_PALETTE.white} isClosed={ true} leftLeftWindowRef={ leftLeftWindowRef} leftRightWindowRef={ leftRightWindowRef}/>
-       {/* Right Window Frame */}
-       <WindowFrame position={ [0, 0, 0.05]} geometry={ [0.05, 1.5, 0.05]} rotation={ [0, Math.PI/2, 0]} color={ COLOR_PALETTE.white} isClosed={ false} rightRightWindowRef={ rightRightWindowRef} rightLeftWindowRef={ rightLeftWindowRef}/>
-      {/* Light switch */}
-      {Box({
-        position: [1.675, 2, -2.39],
-        geometry: [0.05, 0.1, 0.05],
-        color: us_stringLightsOn ? COLOR_PALETTE.white : COLOR_PALETTE.orange,
-      })}
-      {Box({
-        position: [1.675, 2, -2.45],
-        geometry: [0.1, 0.15, 0.1],
-        color: us_stringLightsOn ? COLOR_PALETTE.white : COLOR_PALETTE.black,
-        transparent: true,
-        opacity: us_stringLightsOn ? 1 : 1,
-        onPointerOver: handleLightSwitchMouseOver
-      })}
-      {/* Light switch glow */}
-      <pointLight
-        position={[1.675, 2, -2.3]}
-        intensity={us_stringLightsOn ? 0 : 0.5}
-        color={COLOR_PALETTE.orange}
-        distance={0.3}
-      />
-      {/* right side string lights */}
-      {StringLights({position: [-.35,1,-0.73], rotation: [0,Math.PI/2,0]})}
-      {StringLights({position: [0.65,1,-0.73], rotation: [0,Math.PI/2,0]})}
-      {StringLights({position: [1.65,1,-0.73], rotation: [0,Math.PI/2,0]})}
-      {StringLights({position: [2.65,1,-0.73], rotation: [0,Math.PI/2,0]})}
-      {StringLights({position: [3.65,1,-0.73], rotation: [0,Math.PI/2,0]})}
-      {/* left side string lights */}
-      {StringLights({position: [-3.97,1,-0.35], rotation: [0,0,0]})}
-      {StringLights({position: [-3.97,1,0.65], rotation: [0,0,0]})}
-      {StringLights({position: [-3.97,1,1.65], rotation: [0,0,0]})}
-      {StringLights({position: [-3.97,1,2.65], rotation: [0,0,0]})}
-      {StringLights({position: [-3.97,1,3.65], rotation: [0,0,0]})}
-    </group>
+      <group ref={group} {...props} dispose={null}>
+        {/* <ambientLight intensity={0.5} /> */}
+        {/* <directionalLight position={[0, 5, -5]} intensity={1} /> */}
+        {/* Floor */}
+        {Box({position: [0,0,0], geometry: [5.1, 0.1, 5.1], color: COLOR_PALETTE.test })}
+        {/* Walls */}
+        {/* Right Wall */}
+        {Box({position: [-1.62,0.9,-2.5], geometry: [1.85,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
+        {Box({position: [-1.65,2.45,-2.5], geometry: [1.8,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
+        {Box({position: [-1.62,4.075,-2.5], geometry: [1.85,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
+        {Box({position: [1.675,2.45,-2.5], geometry: [1.75,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
+        {Box({position: [1.675,4.075,-2.5], geometry: [1.75,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
+        {Box({position: [1.675,0.9,-2.5], geometry: [1.75,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
+        {Box({position: [0,0.9,-2.5], geometry: [1.75,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
+        {Box({position: [0,4.075,-2.5], geometry: [1.75,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
+        {/* Left Wall */}
+        {Box({position: [-2.5, 0.9, -1.62], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
+        {Box({position: [-2.5, 2.45, -1.62], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
+        {Box({position: [-2.5, 4.075, -1.62], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
+        {Box({position: [-2.5, 2.45, 1.675], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
+        {Box({position: [-2.5, 4.075, 1.675], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
+        {Box({position: [-2.5, 0.9, 1.675], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
+        {Box({position: [-2.5, 0.9, 0], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
+        {Box({position: [-2.5, 4.075, 0], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
+        {/* Contact Me text */}
+        {projectsFont && us_laptopOn && (
+          <mesh 
+            position={[-2.15, 2, -1.25]} 
+            rotation={[0, Math.PI/4, 0]}
+            scale={[1, 1, 0.001]}
+          >
+            <textGeometry 
+              args={[
+                'Links',
+                {
+                  font: projectsFont,
+                  size: 0.2,
+                  height: 0.1,
+                  curveSegments: 12,
+                  bevelEnabled: true,
+                  bevelThickness: 0.01,
+                  bevelSize: 0.005,
+                }
+              ]} 
+            />
+            <meshToonMaterial 
+              color={COLOR_PALETTE.trueWhite} emissive={ COLOR_PALETTE.white}
+              emissiveIntensity={0.5}
+            />
+          </mesh>
+        )}
+        {/* Laptop */}
+        {Laptop({position: [-1.6, 1.06, -1.7], rotation: [0, -Math.PI/6, 0]})}
+        {/* Desk */}
+        {Box({position: [-2,1,-1.7], geometry: [1,0.1,1.6], color: COLOR_PALETTE.beige})}
+        {/* Desk Legs */}
+        {Box({position: [-2.4,0.5,-2.4], geometry: [0.1,1,0.1], color: COLOR_PALETTE.beige})}
+        {Box({position: [-2.4,0.5,-0.95], geometry: [0.1,1,0.1], color: COLOR_PALETTE.beige})}
+        {Box({position: [-1.55,0.5,-2.4], geometry: [0.1,1,0.1], color: COLOR_PALETTE.beige})}
+        {Box({position: [-1.55,0.5,-0.95], geometry: [0.1,1,0.1], color: COLOR_PALETTE.beige})}
+        {/* Lamp */}
+        {Lamp({position: [-1.8, 2.47, 1.799]})}
+        {/* Bed */}
+        {Extrude({
+          position: [1.7, 0.75, -.85],
+          shape: bedShape,
+          extrudeSettings: bedExtrudeSettings,
+          color: COLOR_PALETTE.white
+        })}
+        {/* Covers */}
+        {Extrude({
+          position: [1.7, 0.76, -.85],
+          shape: coversShape,
+          extrudeSettings: coversExtrudeSettings,
+          color: COLOR_PALETTE.darkBlue
+        })}
+        {/* Cover Fold */}
+        {Extrude({
+          position: [1.69, 0.778, -2.51],
+          shape: coverFoldShape,
+          extrudeSettings: coverFoldSettings,
+          color: COLOR_PALETTE.white
+        })}
+        {/* Bed Frame */}
+        {Box({position: [1.7, 0.25, -2.35], geometry: [1.55, 0.1, 0.05], color: COLOR_PALETTE.beige})}
+        {Box({position: [1.7, 0.25, -2.05], geometry: [1.55, 0.1, 0.05], color: COLOR_PALETTE.beige})}
+        {Box({position: [1.7, 0.25, -1.75], geometry: [1.55, 0.1, 0.05], color: COLOR_PALETTE.beige})}
+        {Box({position: [1.7, 0.25, -1.45], geometry: [1.55, 0.1, 0.05], color: COLOR_PALETTE.beige})}
+        {Box({position: [1.7, 0.25, -1.15], geometry: [1.55, 0.1, 0.05], color: COLOR_PALETTE.beige})}
+        {Box({position: [1.7, 0.25, -.85], geometry: [1.55, 0.1, 0.05], color: COLOR_PALETTE.beige})}
+        {Box({position: [1.7, 0.25, -.55], geometry: [1.55, 0.1, 0.05], color: COLOR_PALETTE.beige})}
+        {Box({position: [1.7, 0.25, -.25], geometry: [1.55, 0.1, 0.05], color: COLOR_PALETTE.beige})}
+        {Box({position: [1.7, 0.25, 0.05], geometry: [1.55, 0.1, 0.05], color: COLOR_PALETTE.beige})}
+        {Box({position: [1.7, 0.25, 0.35], geometry: [1.55, 0.1, 0.05], color: COLOR_PALETTE.beige})}
+        {Box({position: [1.7, 0.25, 0.65], geometry: [1.55, 0.1, 0.05], color: COLOR_PALETTE.beige})}
+        {/* Bed Frame Border */}
+        {Box({position: [2.5, 0.25, -0.85], geometry: [0.1, 0.1, 3.2], color: COLOR_PALETTE.beige})}
+        {Box({position: [0.89, 0.25, -0.85], geometry: [0.1, 0.1, 3.2], color: COLOR_PALETTE.beige})}
+        {Box({position: [1.696, 0.25, 0.72], geometry: [1.71, 0.1, 0.1], color: COLOR_PALETTE.beige})}
+        {Box({position: [1.696, 0.25, -2.4], geometry: [1.71, 0.1, 0.1], color: COLOR_PALETTE.beige})}
+        {/* Bed Legs */}
+        {Box({position: [0.89, 0.1, -2.4], geometry: [0.1, 0.25, 0.1], color: COLOR_PALETTE.beige})}
+        {Box({position: [2.499, 0.1, -2.4], geometry: [0.1, 0.25, 0.1], color: COLOR_PALETTE.beige})}
+        {Box({position: [0.89, 0.1, 0.72], geometry: [0.1, 0.25, 0.1], color: COLOR_PALETTE.beige})}
+        {Box({position: [2.499, 0.1, 0.72], geometry: [0.1, 0.25, 0.1], color: COLOR_PALETTE.beige})}
+        {/* Pillow */}
+        {Extrude({
+          position: [1.7, 0.98, -2],
+          shape: pillowShape,
+          extrudeSettings: pillowExtrudeSettings,
+          color: COLOR_PALETTE.white
+        })}
+        {/* Dresser */}
+        {Box({position: [-2.4, 1, 1.8], geometry: [0.1, 2, 1.498], color: COLOR_PALETTE.darkBrown})}
+        {Box({position: [-1.8, 1, 1.1], geometry: [1.5, 2, 0.1], color: COLOR_PALETTE.darkBrown})}
+        {Box({position: [-1.8, 1, 2.499], geometry: [1.5, 2, 0.1], color: COLOR_PALETTE.darkBrown})}
+        {Box({position: [-1.8, 1.95, 1.799], geometry: [1.5, 0.1, 1.5], color: COLOR_PALETTE.darkBrown})}
+        {Box({position: [-1.8, 1.95, 1.799], geometry: [1.5, 0.1, 1.5], color: COLOR_PALETTE.darkBrown})}
+        {Box({position: [-1.8, 0.15, 1.799], geometry: [0.5, 0.2, 1.5], color: COLOR_PALETTE.darkBrown})}
+        {/* Drawers */}
+        {Drawers({position: [-1.8, 0.5, 1.799], rotation: [0, 0, 0]})}
+        {/* Projects Text */}
+        {projectsFont && us_lightOne && (
+          <mesh 
+            position={[-1, 1.8, 3.8]} 
+            rotation={[0, Math.PI/2, 0]}
+            scale={[1, 1, 0.001]}
+          >
+            <textGeometry 
+              args={[
+                'Projects',
+                {
+                  font: projectsFont,
+                  size: 0.2,
+                  height: 0.1,
+                  curveSegments: 12,
+                  bevelEnabled: true,
+                  bevelThickness: 0.01,
+                  bevelSize: 0.005,
+                  bevelOffset: 0,
+                  bevelSegments: 5
+                }
+              ]} 
+            />
+            <meshToonMaterial 
+              color={COLOR_PALETTE.trueWhite}
+              emissive={COLOR_PALETTE.white}
+              emissiveIntensity={0.5}
+            />
+          </mesh>
+        )}
+        {/* Bookshelf */}
+        {Box({position: [-2.45, 4, 0], geometry: [0.05, 0.6, 3], color: COLOR_PALETTE.beige, onMouseOver: () => {}})}
+        {Box({position: [-2.33, 4.3, 0], geometry: [0.4, 0.06, 3], color: COLOR_PALETTE.beige})}
+        {Box({position: [-2.33, 3.68, 0], geometry: [0.4, 0.06, 3], color: COLOR_PALETTE.beige})}
+        {Box({position: [-2.33, 4, 1.475], geometry: [0.4, 0.6, 0.05], color: COLOR_PALETTE.beige})}
+        {Box({position: [-2.33, 4, -1.475], geometry: [0.4, 0.6, 0.05], color: COLOR_PALETTE.beige})}
+        {/* Books */}
+        {Book({
+          rotation: [Math.PI/6, 0, 0],
+          position: [-2.33, 3.86, 1.35],
+          rightCoverGeometry: [0.2,0.3,0.02],
+          rightCoverColor: COLOR_PALETTE.darkOrange,
+          pagesGeometry: [0.2,0.28,0.05],
+          pagesColor: COLOR_PALETTE.white,
+          leftCoverGeometry: [0.2,0.3,0.02],
+          leftCoverColor: COLOR_PALETTE.darkOrange,
+          spineGeometry: [0.01,0.3,0.08],
+          spineColor: COLOR_PALETTE.darkOrange,
+        })}
+        {Book({
+          rotation: [0, 0, 0],
+          position: [-2.33, 3.86, 1.2],
+          rightCoverGeometry: [0.2,0.3,0.02],
+          rightCoverColor: COLOR_PALETTE.lightOrange,
+          pagesGeometry: [0.2,0.28,0.05],
+          pagesColor: COLOR_PALETTE.white,
+          leftCoverGeometry: [0.2,0.3,0.02],
+          leftCoverColor: COLOR_PALETTE.lightOrange,
+          spineGeometry: [0.01,0.3,0.08],
+          spineColor: COLOR_PALETTE.lightOrange,
+        })}
+        {Book({
+          rotation: [0, 0, 0],
+          position: [-2.33, 3.86, 1.12],
+          rightCoverGeometry: [0.2,0.3,0.02],
+          rightCoverColor: COLOR_PALETTE.orange,
+          pagesGeometry: [0.2,0.28,0.05],
+          pagesColor: COLOR_PALETTE.white,
+          leftCoverGeometry: [0.2,0.3,0.02],
+          leftCoverColor: COLOR_PALETTE.orange,
+          spineGeometry: [0.01,0.3,0.08],
+          spineColor: COLOR_PALETTE.orange,
+        })}
+        {Book({
+          rotation: [0, 0, 0],
+          position: [-2.33, 3.86, 1.04],
+          rightCoverGeometry: [0.2,0.3,0.02],
+          rightCoverColor: COLOR_PALETTE.lightGreen,
+          pagesGeometry: [0.2,0.28,0.05],
+          pagesColor: COLOR_PALETTE.white,
+          leftCoverGeometry: [0.2,0.3,0.02],
+          leftCoverColor: COLOR_PALETTE.lightGreen,
+          spineGeometry: [0.01,0.3,0.08],
+          spineColor: COLOR_PALETTE.lightGreen,
+        })}
+        {Book({
+          rotation: [0, 0, 0],
+          position: [-2.33, 3.86, 0.96],
+          rightCoverGeometry: [0.2,0.3,0.02],
+          rightCoverColor: COLOR_PALETTE.lightBlue,
+          pagesGeometry: [0.2,0.28,0.05],
+          pagesColor: COLOR_PALETTE.white,
+          leftCoverGeometry: [0.2,0.3,0.02],
+          leftCoverColor: COLOR_PALETTE.lightBlue,
+          spineGeometry: [0.01,0.3,0.08],
+          spineColor: COLOR_PALETTE.lightBlue,
+        })}
+        {Book({
+          rotation: [Math.PI/2, 0, 2*Math.PI/3],
+          position: [-2.2, 3.75, 0.72],
+          rightCoverGeometry: [0.2,0.3,0.02],
+          rightCoverColor: COLOR_PALETTE.darkBlue,
+          pagesGeometry: [0.2,0.28,0.05],
+          pagesColor: COLOR_PALETTE.white,
+          leftCoverGeometry: [0.2,0.3,0.02],
+          leftCoverColor: COLOR_PALETTE.darkBlue,
+          spineGeometry: [0.01,0.3,0.08],
+          spineColor: COLOR_PALETTE.darkBlue,
+        })}
+        {Book({
+          rotation: [Math.PI/2, 0, -Math.PI/2],
+          position: [-2.2, 3.75, 0],
+          rightCoverGeometry: [0.2,0.3,0.02],
+          rightCoverColor: COLOR_PALETTE.lightBlue,
+          pagesGeometry: [0.2,0.28,0.05],
+          pagesColor: COLOR_PALETTE.white,
+          leftCoverGeometry: [0.2,0.3,0.02],
+          leftCoverColor: COLOR_PALETTE.lightBlue,
+          spineGeometry: [0.01,0.3,0.08],
+          spineColor: COLOR_PALETTE.lightBlue,
+          bookPagePosition: bookPagePosition.current,
+          bookPageRotation: bookPageRotation.current,
+          onPointerOver: handleBookMouseOver
+        })}
+        {LacrosseStick({position: [-2,0.54,-0.55], rotation: [2.6, -2*Math.PI, -Math.PI]})}
+        {/* Lacrosse Ball */}
+        <mesh 
+          ref={ballRef}
+          position={[ballStartPos.x, ballStartPos.y, ballStartPos.z]} 
+          onPointerOver={handleLacrosseBallMouseOver}
+        >
+          <sphereGeometry args={[0.06]} />
+          <meshToonMaterial color={COLOR_PALETTE.trueWhite} emissive={COLOR_PALETTE.orange}
+          emissiveIntensity={0.5} />
+        </mesh>
+        {/* Windows */}
+        {/* {Box({position: [0.025, 2.5, -2.48], geometry: [1.6, 1.5, 0.05], color: COLOR_PALETTE.white, transparent: true, opacity: 0.2})} */}
+        {/* {Box({position: [-2.7, 2.5, 1.1], geometry: [0.8, 1.5, 0.05], color: COLOR_PALETTE.white, transparent: true, opacity: 0.2, rotation: [0, Math.PI/3, 0]})} */}
+        {/* {Box({position: [-2.7, 2.5, -1.025], geometry: [0.8, 1.5, 0.05], color: COLOR_PALETTE.white, transparent: true, opacity: 0.2, rotation: [0, -Math.PI/3, 0]})} */}
+        {/* Left Window Sill  */}
+        {Box({position: [-2.5, 1.8, 0.037], geometry: [0.5,0.1,1.6]})}
+        {/* Right Window Sill  */}
+        {Box({position: [0.012, 1.8, -2.5], geometry: [1.6,0.1,0.5]})}
+        {/* Left Window Frame */}
+        <WindowFrame position={ [0, 0, 0]} geometry={ [0.05, 1.5, 0.05]} rotation={ [0, 0, 0]} color={ COLOR_PALETTE.white} isClosed={ true} leftLeftWindowRef={ leftLeftWindowRef} leftRightWindowRef={ leftRightWindowRef}/>
+        {/* Right Window Frame */}
+        <WindowFrame position={ [0, 0, 0.05]} geometry={ [0.05, 1.5, 0.05]} rotation={ [0, Math.PI/2, 0]} color={ COLOR_PALETTE.white} isClosed={ false} rightRightWindowRef={ rightRightWindowRef} rightLeftWindowRef={ rightLeftWindowRef}/>
+        {/* Light switch */}
+        {Box({
+          position: [1.675, 2, -2.39],
+          geometry: [0.05, 0.1, 0.05],
+          color: us_stringLightsOn ? COLOR_PALETTE.white : COLOR_PALETTE.orange,
+        })}
+        {Box({
+          position: [1.675, 2, -2.45],
+          geometry: [0.1, 0.15, 0.1],
+          color: us_stringLightsOn ? COLOR_PALETTE.white : COLOR_PALETTE.black,
+          transparent: true,
+          opacity: us_stringLightsOn ? 1 : 1,
+          onPointerOver: handleLightSwitchMouseOver
+        })}
+        {/* Light switch glow */}
+        <pointLight
+          position={[1.675, 2, -2.3]}
+          intensity={us_stringLightsOn ? 0 : 0.1}
+          color={COLOR_PALETTE.orange}
+          distance={0.3}
+        />
+        {/* About Me text */}
+        {projectsFont && us_stringLightsOn && (
+          <mesh 
+            position={[-1.85, 3.7, -1.5]} 
+            rotation={[0, Math.PI/4, 0]}
+            scale={[1, 1, 0.001]}
+          >
+            <textGeometry 
+              args={[
+                'About Me',
+                {
+                  font: projectsFont,
+                  size: 0.2,
+                  height: 0.1,
+                  curveSegments: 12,
+                  bevelEnabled: true,
+                  bevelThickness: 0.01,
+                  bevelSize: 0.005,
+                }
+              ]} 
+            />
+            <meshToonMaterial 
+              color={COLOR_PALETTE.trueWhite} emissive={COLOR_PALETTE.white} emissiveIntensity={0.5}
+            />
+          </mesh>
+        )}
+        {/* right side string lights */}
+        {StringLights({position: [-.35,1,-0.73], rotation: [0,Math.PI/2,0]})}
+        {StringLights({position: [0.65,1,-0.73], rotation: [0,Math.PI/2,0]})}
+        {StringLights({position: [1.65,1,-0.73], rotation: [0,Math.PI/2,0]})}
+        {StringLights({position: [2.65,1,-0.73], rotation: [0,Math.PI/2,0]})}
+        {StringLights({position: [3.65,1,-0.73], rotation: [0,Math.PI/2,0], isEnd: true})}
+        {/* left side string lights */}
+        {StringLights({position: [-3.97,1,-0.35], rotation: [0,0,0]})}
+        {StringLights({position: [-3.97,1,0.65], rotation: [0,0,0]})}
+        {StringLights({position: [-3.97,1,1.65], rotation: [0,0,0]})}
+        {StringLights({position: [-3.97,1,2.65], rotation: [0,0,0]})}
+        {StringLights({position: [-3.97,1,3.65], rotation: [0,0,0], isEnd: true})}
+        {/* first project board in first drawer */}
+        {/* @ts-expect-error directive*/}
+        <ProjectDisplayBoard
+          boardNumber={1}
+          position={displayBoardStartPosition}
+          rotation={new THREE.Euler(0, Math.PI/4, 0)} 
+          imgPath='src/assets/lazynotes-logo.png'
+          title='LazyNotes'
+          ref={projectDisplayBoardOneRef}
+          color={COLOR_PALETTE.pink}
+          link='https://github.com/bradyrichardson/LazyNotes'
+        />
+        <ProjectDisplayBoard
+          boardNumber={2}
+          position={displayBoardStartPosition}
+          rotation={new THREE.Euler(0, Math.PI/4, 0)} 
+          imgPath='src/assets/turdl.png'
+          title='Turdl'
+          ref={projectDisplayBoardTwoRef}
+          color={COLOR_PALETTE.darkGreen}
+          link='https://github.com/bradyrichardson/turdle'
+        />
+        <ProjectDisplayBoard
+          boardNumber={3}
+          position={displayBoardStartPosition}
+          rotation={new THREE.Euler(0, Math.PI/4, 0)} 
+          imgPath='src/assets/poke-vision.png'
+          title='Poke-vision'
+          ref={projectDisplayBoardThreeRef}
+          color={COLOR_PALETTE.canaryYellow}
+          link='https://github.com/bradyrichardson/poke-vision'
+        />
+         <ProjectDisplayBoard
+          boardNumber={4}
+          position={displayBoardStartPosition}
+          rotation={new THREE.Euler(0, Math.PI/4, 0)} 
+          imgPath='src/assets/parapal-logo.png'
+          title='ParaPal'
+          ref={projectDisplayBoardFourRef}
+          color={COLOR_PALETTE.trueWhite}
+          link='https://github.com/bradyrichardson/ParaPal-demo'
+        />
+      </group>
   )
 }
