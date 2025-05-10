@@ -1,7 +1,7 @@
 import { JSX, useEffect, useRef, useState } from "react"
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js'
 import { extend, useFrame, useThree } from '@react-three/fiber'
-import { FontLoader } from "three/examples/jsm/Addons.js"
+import { Font, FontLoader } from "three/examples/jsm/Addons.js"
 
 // Extend Three.js with TextGeometry
 extend({ TextGeometry })
@@ -9,12 +9,13 @@ extend({ TextGeometry })
 // Add this type declaration
 declare module '@react-three/fiber' {
   interface ThreeElements {
-    textGeometry: any // or more specific type if needed
+    textGeometry: React.ReactNode
   }
 }
 
 export default function Start({...props}): JSX.Element {
-  const [projectsFont, setProjectsFont] = useState<any>(null)
+  const [projectsFont, setProjectsFont] = useState<Font | null>(null)
+  // @ts-expect-error directive here
   const [us_showClickToContinue, us_setShowClickToContinue] = useState<boolean>(false)
   const [us_welcomeText, us_setWelcomeText] = useState("")
   const [us_clickText, us_setClickText] = useState("")
@@ -40,7 +41,7 @@ export default function Start({...props}): JSX.Element {
     },
     // Add success and error handlers
     (xhr) => {
-      // console.log((xhr.loaded / xhr.total * 100) + '% loaded')
+      console.log((xhr.loaded / xhr.total * 100) + '% loaded')
     },
     (error) => {
       console.error('Font loading error:', error)
@@ -91,6 +92,7 @@ export default function Start({...props}): JSX.Element {
           <group dispose={null} position={[-5,7,0]}>
             <mesh scale={[5, 5, 0.001]} {...props} position={[0,0,0]}>
               <textGeometry
+                // @ts-expect-error directive here
                 args={[
                   us_welcomeText,
                   {
@@ -118,6 +120,7 @@ export default function Start({...props}): JSX.Element {
           <group dispose={null} position={[-5,5,0]}>
             <mesh scale={[5, 5, 0.001]} {...props} position={[0,0,0]}>
               <textGeometry
+                // @ts-expect-error directive here
                 args={[
                   us_clickText,
                   {

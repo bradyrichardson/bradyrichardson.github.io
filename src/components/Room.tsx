@@ -1,17 +1,15 @@
-import { useFrame, useThree } from "@react-three/fiber"
+import { useFrame } from "@react-three/fiber"
 import { JSX, useRef, useState, Fragment, forwardRef, useEffect } from "react"
 import * as THREE from 'three'
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js'
-import { FontLoader } from "three/examples/jsm/Addons.js"
+import { Font, FontLoader } from "three/examples/jsm/Addons.js"
 import { extend } from '@react-three/fiber'
 
-// Extend Three.js with TextGeometry
 extend({ TextGeometry })
 
-// Add this type declaration
 declare module '@react-three/fiber' {
   interface ThreeElements {
-    textGeometry: any // or more specific type if needed
+    textGeometry: React.ReactNode
   }
 }
 
@@ -44,7 +42,7 @@ export default function Room({...props}): JSX.Element {
   const leftRightWindowRef = useRef<THREE.Group>(null)
   const [us_bookOpen, us_setBookOpen] = useState(false)
   const [us_stringLightsOn, us_setStringLightsOn] = useState(false)
-  const [projectsFont, setProjectsFont] = useState<any>(null)
+  const [projectsFont, setProjectsFont] = useState<Font | null>(null)
   const projectDisplayBoardOneRef = useRef<THREE.Mesh>(null)
   const projectDisplayBoardTwoRef = useRef<THREE.Mesh>(null)
   const projectDisplayBoardThreeRef = useRef<THREE.Mesh>(null)
@@ -768,6 +766,7 @@ export default function Room({...props}): JSX.Element {
           position: [0.82, 0.25, 0],
           geometry: [0.1, 0.1, 0.3],
           color: COLOR_PALETTE.black,
+          // @ts-expect-error directive here
           onClick: props.onClick,
           emissive: !us_lightOne ? COLOR_PALETTE.orange : COLOR_PALETTE.black,
           emissiveIntensity: !us_lightOne ? 0.5 : 0
@@ -776,24 +775,28 @@ export default function Room({...props}): JSX.Element {
         {Box({
           position: [0.77, 0.2, 0],
           geometry: [0.05, 0.417, 1.4],
+          // @ts-expect-error directive here
           color: props.color,
         })}
         {/* Drawer Back Inner Wall */}
         {Box({
           position: [0, 0.2, 0],
           geometry: [0.05, 0.409, 1.4],
+          // @ts-expect-error directive here
           color: props.color
         })}
         {/* Drawer Right Inner Wall */}
         {Box({
           position: [0.1, 0.18, -0.625],
           geometry: [1.3, 0.38, 0.05],
+          // @ts-expect-error directive here
           color: props.color
         })}
         {/* Drawer Left Inner Wall */}
         {Box({
           position: [0.1, 0.18, 0.625],
           geometry: [1.3, 0.38, 0.05],
+          // @ts-expect-error directive here
           color: props.color,
           // transparent: true,
           // opacity: 0.5
@@ -1259,9 +1262,8 @@ export default function Room({...props}): JSX.Element {
     loader.load('./fonts/Roboto Condensed_Regular.json', (loadedFont) => {
       setProjectsFont(loadedFont)
     },
-    // Add success and error handlers
     (xhr) => {
-      // console.log((xhr.loaded / xhr.total * 100) + '% loaded')
+      console.log((xhr.loaded / xhr.total * 100) + '% loaded')
     },
     (error) => {
       console.error('Font loading error:', error)
@@ -1330,6 +1332,7 @@ export default function Room({...props}): JSX.Element {
         { projectsFont &&
         <mesh scale={[1.1, 1.1, 0.001]} {...props} position={[-2,0.5,0.5]}>
           <textGeometry 
+            // @ts-expect-error directive here
                 args={[
                   props.title,
                   {
@@ -1393,6 +1396,7 @@ export default function Room({...props}): JSX.Element {
             scale={[1, 1, 0.001]}
           >
             <textGeometry 
+              // @ts-expect-error directive here  
               args={[
                 'Links',
                 {
@@ -1490,6 +1494,7 @@ export default function Room({...props}): JSX.Element {
             scale={[1, 1, 0.001]}
           >
             <textGeometry 
+              // @ts-expect-error directive here  
               args={[
                 'Projects',
                 {
@@ -1658,6 +1663,7 @@ export default function Room({...props}): JSX.Element {
             scale={[1, 1, 0.001]}
           >
             <textGeometry 
+              // @ts-expect-error directive here  
               args={[
                 'About Me',
                 {
@@ -1689,7 +1695,6 @@ export default function Room({...props}): JSX.Element {
         {StringLights({position: [-3.97,1,2.65], rotation: [0,0,0]})}
         {StringLights({position: [-3.97,1,3.65], rotation: [0,0,0], isEnd: true})}
         {/* first project board in first drawer */}
-        {/* @ts-expect-error directive*/}
         <ProjectDisplayBoard
           boardNumber={1}
           position={displayBoardStartPosition}
