@@ -4,6 +4,7 @@ import * as THREE from 'three'
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js'
 import { Font, FontLoader } from "three/examples/jsm/Addons.js"
 import { extend } from '@react-three/fiber'
+import { Html } from '@react-three/drei'
 
 extend({ TextGeometry })
 
@@ -36,13 +37,9 @@ export default function Room({...props}): JSX.Element {
   const bookPageRotation = useRef(new THREE.Vector3(0, 0, 0))
   const bookPagePosition = useRef(new THREE.Vector3(0, 0, 0))
   const [us_animationTriggered, us_setAnimationTriggered] = useState(false)
-  const leftLeftWindowRef = useRef<THREE.Group>(null)
-  const rightRightWindowRef = useRef<THREE.Group>(null)
-  const rightLeftWindowRef = useRef<THREE.Group>(null)
-  const leftRightWindowRef = useRef<THREE.Group>(null)
   const [us_bookOpen, us_setBookOpen] = useState(false)
   const [us_stringLightsOn, us_setStringLightsOn] = useState(false)
-  const [projectsFont, setProjectsFont] = useState<Font | null>(null)
+  const [us_projectsFont, us_setProjectsFont] = useState<Font | null>(null)
   const projectDisplayBoardOneRef = useRef<THREE.Mesh>(null)
   const projectDisplayBoardTwoRef = useRef<THREE.Mesh>(null)
   const projectDisplayBoardThreeRef = useRef<THREE.Mesh>(null)
@@ -72,27 +69,9 @@ export default function Room({...props}): JSX.Element {
     'lightYellow': '#FFFFC5',
     'pink': '#FF8DA1',
     'canaryYellow': '#FFEF00',
-    'darkBrown': '#5C4033'
+    'darkBrown': '#5C4033',
+    'darkCharcoal': '#808080',
   }
-
-  // const cameraDrawerOne = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-  // cameraDrawerOne.position.set(20, 20, 20)
-  // document.addEventListener('mousemove', (e) => {
-  //   mouseX.current = (e.clientX / window.innerWidth) * 5 - 2.5
-  //   mouseY.current = ((window.innerHeight - e.clientY) / window.innerHeight) * 5 + 1
-  // })
-
-  // state.camera.position.set(1, 0, 1)
-
-  // const camera = state.camera
-  // state.scene.add(cameraDrawerOne)
-  // useFrame(() => {
-  //   const boundedX = Math.max(-2.5, Math.min(2.5, mouseX.current))
-  //   const boundedY = Math.max(-2.5, Math.min(2.5, mouseY.current))
-    
-  //   state.camera.lookAt(boundedX, boundedY, 0)
-  // })
-
 
   const handleLampMouseOver = () => {
       us_setLightOne(!us_lightOne)
@@ -133,24 +112,6 @@ export default function Room({...props}): JSX.Element {
         break
       case 4:
         projectDisplayBoardFourIsAnimating.current = true
-        break
-      default:
-        break
-    }
-
-    // switch camera based on drawer number
-    switch (drawerNumber) {
-      case 1:
-        // state.set({...state, camera: cameraDrawerOne})
-        break
-      case 2:
-        // state.camera.position.set(0, 0.583, 0)
-        break
-      case 3:
-        // state.camera.position.set(0, 0.167, 0)
-        break
-      case 4:
-        // state.camera.position.set(0, -0.25, 0)
         break
       default:
         break
@@ -199,6 +160,11 @@ export default function Room({...props}): JSX.Element {
       // initial velocity when ball leaves stick
       ballVelocity.current = { x: 0.5, y: -1, z: 0.3 }
     }
+  }
+
+  const handleWindowMouseOver = () => {
+    // us_setLeftWindowOpen(!us_leftWindowOpen)
+    // us_setRightWindowOpen(!us_rightWindowOpen)
   }
 
   const handleBookMouseOver = () => {
@@ -768,7 +734,7 @@ export default function Room({...props}): JSX.Element {
           color: COLOR_PALETTE.black,
           // @ts-expect-error directive here
           onClick: props.onClick,
-          emissive: !us_lightOne ? COLOR_PALETTE.orange : COLOR_PALETTE.black,
+          emissive: !us_lightOne ? COLOR_PALETTE.darkBlue : COLOR_PALETTE.black,
           emissiveIntensity: !us_lightOne ? 0.5 : 0
         })}
         {/* Drawer Outer Wall */}
@@ -1090,58 +1056,37 @@ export default function Room({...props}): JSX.Element {
     )
   }
 
-  const WindowFrame = ({...props}): JSX.Element => {
-    // 1. Define refs for each window
-    const leftWindowRef = useRef<THREE.Group>(null)
-    const rightWindowRef = useRef<THREE.Group>(null)
-    
-    // 2. Define rotation states and refs
-    const [us_leftWindowOpen, us_setLeftWindowOpen] = useState(false)
-    const [us_rightWindowOpen, us_setRightWindowOpen] = useState(false)
-    const leftWindowRotation = useRef(0)
-    const rightWindowRotation = useRef(0)
-    const leftTargetRotation = useRef(0)
-    const rightTargetRotation = useRef(0)
+  // In the Room component, add these refs
+  const leftLeftWindowRef = useRef<THREE.Group>(null)
+  const leftRightWindowRef = useRef<THREE.Group>(null)
+  const rightLeftWindowRef = useRef<THREE.Group>(null)
+  const rightRightWindowRef = useRef<THREE.Group>(null)
+  const windowRotations = useRef({
+    left: 0,
+    right: 0,
+    target: 0
+  })
 
+  // Then modify the WindowFrame component
+  const WindowFrame = forwardRef(({leftRef, rightRef, rotations, ...props}, ref): JSX.Element => {
     useFrame((_, delta) => {
-      if (leftWindowRef.current) {
-        // 3. Use the correct rotation references
-        leftWindowRotation.current += (leftTargetRotation.current - leftWindowRotation.current) * delta * 5
+      if (leftRef.current && rightRef.current) {
+        // Smoothly interpolate the rotations
+        rotations.current.left += (rotations.current.target - rotations.current.left) * delta * 5
+        rotations.current.right += (rotations.current.target - rotations.current.right) * delta * 5
         
-        if (Math.abs(leftWindowRotation.current - Math.PI / 3) < 0.01) {
-          leftWindowRotation.current = Math.PI / 3
-        } else if (Math.abs(leftWindowRotation.current) < 0.01) {
-          leftWindowRotation.current = 0
-        }
-        
-        leftWindowRef.current.rotation.y = leftWindowRotation.current
-      }
-      
-      if (rightWindowRef.current) {
-        rightWindowRotation.current += (rightTargetRotation.current - rightWindowRotation.current) * delta * 5
-        
-        if (Math.abs(rightWindowRotation.current - Math.PI / 3) < 0.01) {
-          rightWindowRotation.current = Math.PI / 3
-        } else if (Math.abs(rightWindowRotation.current) < 0.01) {
-          rightWindowRotation.current = 0
-        }
-        
-        rightWindowRef.current.rotation.y = -rightWindowRotation.current
+        // Apply rotations
+        leftRef.current.rotation.y = rotations.current.left
+        rightRef.current.rotation.y = -rotations.current.right
       }
     })
 
-    // 4. Separate handlers for left and right windows
-    const handleLeftWindowMouseOver = () => {
-      us_setLeftWindowOpen(!us_leftWindowOpen)
-      leftTargetRotation.current = us_leftWindowOpen ? 0 : Math.PI / 3
+    const handleWindowMouseOver = () => {
+      // Toggle between 0 and PI/3
+      rotations.current.target = Math.abs(rotations.current.target) < 0.01 ? Math.PI / 3 : 0
     }
 
-    const handleRightWindowMouseOver = () => {
-      us_setRightWindowOpen(!us_rightWindowOpen)
-      rightTargetRotation.current = us_rightWindowOpen ? 0 : Math.PI / 3
-    }
-
-    return (
+  return (
       <group position={props.position} rotation={props.rotation}>
         {/* Static frame parts */}
         <mesh>
@@ -1163,23 +1108,29 @@ export default function Room({...props}): JSX.Element {
             geometry: [1.5, 0.06, 0.15], 
             color: COLOR_PALETTE.white
           })}
+          {/* Window Sill  */}
+          {Box({position: [0.012, 1.8, -2.5], geometry: [1.6,0.1,0.5], onPointerOver: handleWindowMouseOver, emissive: COLOR_PALETTE.orange, emissiveIntensity: !us_lightOne && !us_stringLightsOn ? 0.5 : 0})}
         </mesh>
 
         {/* Left window (animated) */}
-        <group ref={leftWindowRef} position={[-0.75, 2.5, -2.5]}>
+        <group ref={leftRef} position={[-0.75, 2.5, -2.5]}>
           <mesh position={[0.375, 0, 0]}>
             {Box({
               position: [0, 0.05, 0],
-              geometry: [0.75, 1.4, 0.05],
+              geometry: [0.75, 1.29, 0.05],
               color: COLOR_PALETTE.white,
               transparent: true,
               opacity: 0.1,
-              onPointerOver: handleLeftWindowMouseOver
             })}
             {/* Vertical divider */}
             {Box({
-              position: [0, 0, 0], 
-              geometry: [0.05, 1.5, 0.075], 
+              position: [0, 0.04, 0], 
+              geometry: [0.05, 1.29, 0.075], 
+              color: COLOR_PALETTE.white
+            })}
+            {Box({
+              position: [0.365, 0.04, 0], 
+              geometry: [0.05, 1.29, 0.075], 
               color: COLOR_PALETTE.white
             })}
             {/* Horizontal segments */}
@@ -1191,26 +1142,40 @@ export default function Room({...props}): JSX.Element {
             {Box({
               position: [0, -0.1, 0], 
               geometry: [0.75, 0.05, 0.075], 
+              color: COLOR_PALETTE.white
+            })}
+            {Box({
+              position: [0, 0.67, 0], 
+              geometry: [0.76, 0.05, 0.075], 
+              color: COLOR_PALETTE.white
+            })}
+            {Box({
+              position: [0.01, -0.625, 0], 
+              geometry: [0.76, 0.05, 0.075], 
               color: COLOR_PALETTE.white
             })}
           </mesh>
         </group>
 
         {/* Right window (animated) */}
-        <group ref={rightWindowRef} position={[0.775, 2.5, -2.5]}>
+        <group ref={rightRef} position={[0.775, 2.5, -2.5]}>
           <mesh position={[-0.375, 0, 0]}>
             {Box({
               position: [0, 0.05, 0],
-              geometry: [0.75, 1.5, 0.05],
+              geometry: [0.75, 1.29, 0.05],
               color: COLOR_PALETTE.white,
               transparent: true,
               opacity: 0.1,
-              onPointerOver: handleRightWindowMouseOver
             })}
             {/* Vertical divider */}
             {Box({
-              position: [0, 0, 0], 
-              geometry: [0.05, 1.5, 0.075], 
+              position: [0, 0.04, 0], 
+              geometry: [0.05, 1.29, 0.075], 
+              color: COLOR_PALETTE.white
+            })}
+            {Box({
+              position: [-0.365, 0.02, 0], 
+              geometry: [0.05, 1.34, 0.075], 
               color: COLOR_PALETTE.white
             })}
             {/* Horizontal segments */}
@@ -1221,6 +1186,16 @@ export default function Room({...props}): JSX.Element {
             })}
             {Box({
               position: [0, -0.1, 0], 
+              geometry: [0.75, 0.05, 0.075], 
+              color: COLOR_PALETTE.white
+            })}
+            {Box({
+              position: [0, 0.67, 0], 
+              geometry: [0.77, 0.05, 0.075], 
+              color: COLOR_PALETTE.white
+            })}
+            {Box({
+              position: [0, -0.625, 0], 
               geometry: [0.75, 0.05, 0.075], 
               color: COLOR_PALETTE.white
             })}
@@ -1228,7 +1203,7 @@ export default function Room({...props}): JSX.Element {
         </group>
       </group>
     )
-  }
+  })
 
   const StringLights = ({...props}) => {
     return (
@@ -1260,7 +1235,7 @@ export default function Room({...props}): JSX.Element {
   useEffect(() => {
     const loader = new FontLoader()
     loader.load('./fonts/Roboto Condensed_Regular.json', (loadedFont) => {
-      setProjectsFont(loadedFont)
+      us_setProjectsFont(loadedFont)
     },
     (xhr) => {
       console.log((xhr.loaded / xhr.total * 100) + '% loaded')
@@ -1329,14 +1304,14 @@ export default function Room({...props}): JSX.Element {
 
     return (
       <group rotation={props.rotation} position={props.position} ref={ref}>
-        { projectsFont &&
+        { us_projectsFont &&
         <mesh scale={[1.1, 1.1, 0.001]} {...props} position={[-2,0.5,0.5]}>
           <textGeometry 
             // @ts-expect-error directive here
                 args={[
                   props.title,
                   {
-                    font: projectsFont,
+                    font: us_projectsFont,
                     size: 0.12,
                     height: 0.1,
                     curveSegments: 12,
@@ -1361,7 +1336,250 @@ export default function Room({...props}): JSX.Element {
     )
   })
 
+  const Cactus = ({...props}) => {
+    return (
+      <group {...props}>
+        {/* Pot */}
+        <mesh position={[-2.33, 3.7, -1.2]} rotation={[0, 0, 0]}>
+          <cylinderGeometry args={[0.1, 0.08, 0.12, 16]} />
+          <meshToonMaterial color={COLOR_PALETTE.darkOrange} />
+        </mesh>
+
+        {/* Cactus Base */}
+        <mesh position={[-2.33, 3.8, -1.2]} rotation={[0, 0, 0]}>
+          <cylinderGeometry args={[0.05, 0.07, 0.29, 6]} />
+          <meshToonMaterial color={COLOR_PALETTE.darkGreen} />
+        </mesh>
+
+        {/* Left Branch */}
+        {/* <mesh position={[-2.34, 3.95, -1.17]} rotation={[0, Math.PI/2, 0.3]}>
+          <cylinderGeometry args={[0.03, 0.04, 0.15, 6]} />
+          <meshToonMaterial color={COLOR_PALETTE.darkGreen} />
+        </mesh> */}
+
+        {/* Right Branch */}
+        <mesh position={[-2.33, 3.88, -1.27]} rotation={[0, Math.PI/2, -0.8]}>
+          <cylinderGeometry args={[0.025, 0.035, 0.12, 6]} />
+          <meshToonMaterial color={COLOR_PALETTE.darkGreen} />
+        </mesh>
+
+        {/* Dirt in Pot */}
+        <mesh position={[-2.33, 3.76, -1.2]} rotation={[0, 0, 0]}>
+          <cylinderGeometry args={[0.09, 0.09, 0.02, 16]} />
+          <meshToonMaterial color={COLOR_PALETTE.darkBrown} />
+        </mesh>
+      </group>
+    )
+  }
+
+  const OfficeChair = ({ position = [0, 0, 0] }) => {
+    return (
+      <group position={position} rotation={[0, -Math.PI/4, 0]}>
+        {/* Base with wheels */}
+        <mesh position={[0, 0.15, 0]}>
+          {/* Center cylinder */}
+          <cylinderGeometry args={[0.1, 0.1, 0.3, 16]} />
+          <meshStandardMaterial color={COLOR_PALETTE.darkCharcoal} />
+        </mesh>
+
+        {/* Five-star base */}
+        {[0, 72, 144, 216, 288].map((angle) => (
+          <group key={angle} rotation={[0, (angle * Math.PI) / 180, 0]}>
+            <mesh position={[0.25, 0.1, 0]}>
+              <boxGeometry args={[0.5, 0.05, 0.1]} />
+              <meshStandardMaterial color={COLOR_PALETTE.darkCharcoal} />
+            </mesh>
+            {/* Wheel */}
+            <mesh position={[0.5, 0.08, 0]} rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.05, 0.05, 0.05, 16]} />
+              <meshStandardMaterial color="#0a0a0a" />
+            </mesh>
+          </group>
+        ))}
+
+        {/* Hydraulic lift */}
+        <mesh position={[0, 0.6, 0]}>
+          <cylinderGeometry args={[0.05, 0.05, 0.6, 16]} />
+          <meshStandardMaterial color="#2a2a2a" />
+        </mesh>
+
+        {/* Seat */}
+        <mesh position={[0, 0.9, 0.07]}>
+          <boxGeometry args={[0.5, 0.1, 0.5]} />
+          <meshStandardMaterial color={COLOR_PALETTE.darkCharcoal} />
+        </mesh>
+
+        {/* Back support pole */}
+        <mesh position={[0, 1.2, -0.2]} rotation={[-0.1, 0, 0]}>
+          <boxGeometry args={[0.1, 0.6, 0.05]} />
+          <meshStandardMaterial color={COLOR_PALETTE.darkCharcoal} />
+        </mesh>
+
+        {/* Back rest */}
+        <mesh position={[0, 1.3, -0.2]} rotation={[-0.1, 0, 0]}>
+          <boxGeometry args={[0.5, 0.8, 0.1]} />
+          <meshStandardMaterial color={COLOR_PALETTE.darkCharcoal} />
+        </mesh>
+
+        {/* Arm rests */}
+        <mesh position={[0.3, 1, 0]}>
+          <boxGeometry args={[0.1, 0.3, 0.4]} />
+          <meshStandardMaterial color={COLOR_PALETTE.darkCharcoal} />
+        </mesh>
+        <mesh position={[-0.3, 1, 0]}>
+          <boxGeometry args={[0.1, 0.3, 0.4]} />
+          <meshStandardMaterial color={COLOR_PALETTE.darkCharcoal} />
+        </mesh>
+      </group>
+    )
+  }
+
   const displayBoardStartPosition = new THREE.Vector3(-1.4, 0.1, 0.4)
+
+  const FlatBook = ({...props}) => {
+    const [isOpen, setIsOpen] = useState(false)
+    const leftCoverRef = useRef<THREE.Group>(null)
+    const rightCoverRef = useRef<THREE.Group>(null)
+    const targetRotation = useRef(0)
+    const [showText, setShowText] = useState(false)
+
+    useFrame((_, delta) => {
+      if (leftCoverRef.current && rightCoverRef.current) {
+        // smoothly animate the covers
+        const currentRotation = leftCoverRef.current.rotation.y
+        const newRotation = currentRotation + (targetRotation.current - currentRotation) * delta * 10
+        
+        // leftCoverRef.current.rotation.y = newRotation
+        // rightCoverRef.current.rotation.y = -newRotation
+        // leftCoverRef.current.rotation.z = newRotation
+        rightCoverRef.current.rotation.z = -newRotation
+
+      }
+    })
+
+    const handleBookMouseOver = () => {
+      if (!isOpen) {
+        targetRotation.current = Math.PI / 2 // 90 degrees open
+        setIsOpen(true)
+        // Delay showing text until book is mostly open
+        setTimeout(() => setShowText(true), 500)
+      }
+    }
+
+    const handleClose = () => {
+      setShowText(false)
+      targetRotation.current = 0
+      setIsOpen(false)
+    }
+
+    const aboutMeText = `
+      Hi, I'm Brady Richardson!
+      
+      I'm a new grad (April 2025) software engineer with a passion for creating intuitive and engaging user experiences. 
+      My journey in tech began with simple C++ programs for school, and now I do everything from web development, to mobile apps, to machine learning projects! When I'm not coding, you can find me playing lacrosse, studying languages, reading about new technologies, or working on personal projects.
+
+      You can find my resume on my LinkedIn, and my projects on GitHub (both of which can be accessed by clicking the links on the laptop in this room). As of May 12, 2025, I am looking for a Summer 2025 position or freelance work!
+      
+      Email me at bradyrr33@gmail.com or message me on LinkedIn to get in touch.
+    `
+
+    return (
+      <group {...props}>
+        {/* Base/Pages (always visible) */}
+        <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <boxGeometry args={[0.5, 0.5, 0.05]} />
+          <meshStandardMaterial color={COLOR_PALETTE.white} />
+        </mesh>
+
+        {/* Left Cover */}
+        <group ref={leftCoverRef} position={[-0.25, -0.03, 0]}>
+          <mesh position={[0.25, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <boxGeometry args={[0.5, 0.5, 0.02]} />
+            <meshStandardMaterial color={COLOR_PALETTE.silver} />
+          </mesh>
+        </group>
+
+        {/* Right Cover */}
+        <group ref={rightCoverRef} position={[0.25, 0.03, 0]}>
+          <mesh position={[-0.25, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <boxGeometry args={[0.5, 0.5, 0.02]} />
+            <meshStandardMaterial color={COLOR_PALETTE.silver} emissive={COLOR_PALETTE.orange} emissiveIntensity={!us_stringLightsOn && !us_lightOne ? 0.5 : 0} />
+          </mesh>
+        </group>
+
+        {/* Invisible hover trigger */}
+        <mesh 
+          position={[0, 0.1, 0]} 
+          rotation={[-Math.PI / 2, 0, 0]}
+          onPointerOver={handleBookMouseOver}
+        >
+          <boxGeometry args={[0.5, 0.5, 0.1]} />
+          <meshStandardMaterial transparent opacity={0} />
+        </mesh>
+
+        {/* Text Display with Close Button */}
+        {showText && (
+          <Html
+            position={[-2, 0.3, 4]}
+            rotation={[0, -Math.PI/4, 0]}
+            transform
+            occlude
+          >
+            <div
+              style={{
+                position: 'relative',
+                width: '300px',
+                height: '450px',
+                padding: '40px',
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                borderRadius: '10px',
+                overflowY: 'auto',
+                fontFamily: 'Arial, sans-serif',
+                fontSize: '14px',
+                lineHeight: '1.6',
+                color: '#333',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                transform: 'scale(0.5)', // Scale down to match scene scale
+              }}
+            >
+              {/* Close Button */}
+              <button
+                onClick={handleClose}
+                style={{
+                  position: 'absolute',
+                  top: '10px',
+                  right: '10px',
+                  padding: '5px 10px',
+                  backgroundColor: COLOR_PALETTE.darkBlue,
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '5px',
+                  cursor: 'pointer',
+                  fontSize: '16px',
+                  zIndex: 1000,
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.backgroundColor = COLOR_PALETTE.lightBlue
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.backgroundColor = COLOR_PALETTE.darkBlue
+                }}
+              >
+                ✕
+              </button>
+
+              {/* Text Content */}
+              {aboutMeText.split('\n').map((text, index) => (
+                <p key={index} style={{ marginBottom: '10px' }}>
+                  {text}
+                </p>
+              ))}
+            </div>
+          </Html>
+        )}
+      </group>
+    )
+  }
 
   return (
       <group ref={group} {...props} dispose={null}>
@@ -1389,7 +1607,7 @@ export default function Room({...props}): JSX.Element {
         {Box({position: [-2.5, 0.9, 0], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
         {Box({position: [-2.5, 4.075, 0], geometry: [0.1, 1.75, 1.75], color: COLOR_PALETTE.darkBlue })}
         {/* Contact Me text */}
-        {projectsFont && us_laptopOn && (
+        {us_projectsFont && us_laptopOn && (
           <mesh 
             position={[-2.15, 2, -1.25]} 
             rotation={[0, Math.PI/4, 0]}
@@ -1400,7 +1618,7 @@ export default function Room({...props}): JSX.Element {
               args={[
                 'Links',
                 {
-                  font: projectsFont,
+                  font: us_projectsFont,
                   size: 0.2,
                   height: 0.1,
                   curveSegments: 12,
@@ -1425,6 +1643,8 @@ export default function Room({...props}): JSX.Element {
         {Box({position: [-2.4,0.5,-0.95], geometry: [0.1,1,0.1], color: COLOR_PALETTE.beige})}
         {Box({position: [-1.55,0.5,-2.4], geometry: [0.1,1,0.1], color: COLOR_PALETTE.beige})}
         {Box({position: [-1.55,0.5,-0.95], geometry: [0.1,1,0.1], color: COLOR_PALETTE.beige})}
+        {/* Chair */}
+        {OfficeChair({position: [-0.5,0.03,-1.5]})}
         {/* Lamp */}
         {Lamp({position: [-1.8, 2.47, 1.799]})}
         {/* Bed */}
@@ -1487,7 +1707,7 @@ export default function Room({...props}): JSX.Element {
         {/* Drawers */}
         {Drawers({position: [-1.8, 0.5, 1.799], rotation: [0, 0, 0]})}
         {/* Projects Text */}
-        {projectsFont && us_lightOne && (
+        {us_projectsFont && us_lightOne && (
           <mesh 
             position={[-1, 1.8, 3.8]} 
             rotation={[0, Math.PI/2, 0]}
@@ -1498,7 +1718,7 @@ export default function Room({...props}): JSX.Element {
               args={[
                 'Projects',
                 {
-                  font: projectsFont,
+                  font: us_projectsFont,
                   size: 0.2,
                   height: 0.1,
                   curveSegments: 12,
@@ -1596,21 +1816,11 @@ export default function Room({...props}): JSX.Element {
           spineGeometry: [0.01,0.3,0.08],
           spineColor: COLOR_PALETTE.darkBlue,
         })}
-        {Book({
-          rotation: [Math.PI/2, 0, -Math.PI/2],
-          position: [-2.2, 3.75, 0],
-          rightCoverGeometry: [0.2,0.3,0.02],
-          rightCoverColor: COLOR_PALETTE.lightBlue,
-          pagesGeometry: [0.2,0.28,0.05],
-          pagesColor: COLOR_PALETTE.white,
-          leftCoverGeometry: [0.2,0.3,0.02],
-          leftCoverColor: COLOR_PALETTE.lightBlue,
-          spineGeometry: [0.01,0.3,0.08],
-          spineColor: COLOR_PALETTE.lightBlue,
-          bookPagePosition: bookPagePosition.current,
-          bookPageRotation: bookPageRotation.current,
-          onPointerOver: handleBookMouseOver
-        })}
+        {/* About Me Book */}
+        <FlatBook position={[-2.1, 3.75, 0]} rotation={[0,Math.PI/2,0]} />
+        {/* Cactus */}
+        {Cactus({position: [0,0.06,0], rotation: [0, 0, 0]})}
+        {/* Lacrosse Stick */}
         {LacrosseStick({position: [-2,0.54,-0.55], rotation: [2.6, -2*Math.PI, -Math.PI]})}
         {/* Lacrosse Ball */}
         <mesh 
@@ -1620,21 +1830,30 @@ export default function Room({...props}): JSX.Element {
         >
           <sphereGeometry args={[0.06]} />
           <meshToonMaterial color={COLOR_PALETTE.trueWhite} emissive={COLOR_PALETTE.orange}
-          emissiveIntensity={0.5} />
+          emissiveIntensity={!us_lightOne && !us_lightTwo && !us_laptopOn ? 0.5 : 0} />
         </mesh>
         {/* Windows */}
-        {/* {Box({position: [0.025, 2.5, -2.48], geometry: [1.6, 1.5, 0.05], color: COLOR_PALETTE.white, transparent: true, opacity: 0.2})} */}
-        {/* {Box({position: [-2.7, 2.5, 1.1], geometry: [0.8, 1.5, 0.05], color: COLOR_PALETTE.white, transparent: true, opacity: 0.2, rotation: [0, Math.PI/3, 0]})} */}
+        {/* {Box({position: [0.025, 2.5, -2.48], geometry: [1.6, 1.5, 0.05], color: COLOR_PALETTE.white, transparent: true, opacity: 0.2})}
+        {Box({position: [-2.7, 2.5, 1.1], geometry: [0.8, 1.5, 0.05], color: COLOR_PALETTE.white, transparent: true, opacity: 0.2, rotation: [0, Math.PI/3, 0]})} */}
         {/* {Box({position: [-2.7, 2.5, -1.025], geometry: [0.8, 1.5, 0.05], color: COLOR_PALETTE.white, transparent: true, opacity: 0.2, rotation: [0, -Math.PI/3, 0]})} */}
-        {/* Left Window Sill  */}
-        {Box({position: [-2.5, 1.8, 0.037], geometry: [0.5,0.1,1.6]})}
-        {/* Right Window Sill  */}
-        {Box({position: [0.012, 1.8, -2.5], geometry: [1.6,0.1,0.5]})}
         {/* Left Window Frame */}
-        <WindowFrame position={ [0, 0, 0]} geometry={ [0.05, 1.5, 0.05]} rotation={ [0, 0, 0]} color={ COLOR_PALETTE.white} isClosed={ true} leftLeftWindowRef={ leftLeftWindowRef} leftRightWindowRef={ leftRightWindowRef}/>
+        <WindowFrame 
+          position={[0, 0, 0]}
+          rotation={[0, 0, 0]}
+          color={COLOR_PALETTE.white}
+          leftRef={leftLeftWindowRef}
+          rightRef={leftRightWindowRef}
+          rotations={windowRotations}
+        />
         {/* Right Window Frame */}
-        <WindowFrame position={ [0, 0, 0.05]} geometry={ [0.05, 1.5, 0.05]} rotation={ [0, Math.PI/2, 0]} color={ COLOR_PALETTE.white} isClosed={ false} rightRightWindowRef={ rightRightWindowRef} rightLeftWindowRef={ rightLeftWindowRef}/>
-        {/* Light switch */}
+        <WindowFrame 
+          position={[0, 0, 0.05]}
+          rotation={[0, Math.PI/2, 0]}
+          color={COLOR_PALETTE.white}
+          leftRef={rightLeftWindowRef}
+          rightRef={rightRightWindowRef}
+          rotations={windowRotations}
+        />        {/* Light switch */}
         {Box({
           position: [1.675, 2, -2.39],
           geometry: [0.05, 0.1, 0.05],
@@ -1656,7 +1875,7 @@ export default function Room({...props}): JSX.Element {
           distance={0.3}
         />
         {/* About Me text */}
-        {projectsFont && us_stringLightsOn && (
+        {/* {us_projectsFont && us_stringLightsOn && (
           <mesh 
             position={[-1.85, 3.7, -1.5]} 
             rotation={[0, Math.PI/4, 0]}
@@ -1667,7 +1886,7 @@ export default function Room({...props}): JSX.Element {
               args={[
                 'About Me',
                 {
-                  font: projectsFont,
+                  font: us_projectsFont,
                   size: 0.2,
                   height: 0.1,
                   curveSegments: 12,
@@ -1681,7 +1900,7 @@ export default function Room({...props}): JSX.Element {
               color={COLOR_PALETTE.trueWhite} emissive={COLOR_PALETTE.white} emissiveIntensity={0.5}
             />
           </mesh>
-        )}
+        )} */}
         {/* right side string lights */}
         {StringLights({position: [-.35,1,-0.73], rotation: [0,Math.PI/2,0]})}
         {StringLights({position: [0.65,1,-0.73], rotation: [0,Math.PI/2,0]})}
@@ -1735,6 +1954,159 @@ export default function Room({...props}): JSX.Element {
           color={COLOR_PALETTE.trueWhite}
           link='https://github.com/bradyrichardson/ParaPal-demo'
         />
+        {/* Help text */}
+        {us_projectsFont && <group dispose={null} position={[4,3,0]}>
+            <mesh scale={[1, 1, 0.001]} {...props} position={[0,0,0]} rotation={[0,Math.PI/4,0]}>
+              <textGeometry
+                // @ts-expect-error directive here
+                args={[
+                  'Orange:',
+                  {
+                    font: us_projectsFont,
+                    size: 0.12,
+                    height: 0.1,
+                    curveSegments: 12,
+                    bevelEnabled: true,
+                    bevelThickness: 0.01,
+                    bevelSize: 0.005,
+                  }
+                ]}
+              />
+              <meshToonMaterial 
+                color={COLOR_PALETTE.orange} 
+                opacity={1} 
+                transparent={false}
+                emissive={COLOR_PALETTE.orange}
+                emissiveIntensity={1}
+              />
+            </mesh>
+            <mesh scale={[1, 1, 0.001]} {...props} position={[0,-0.3,0]} rotation={[0,Math.PI/4,0]}>
+              <textGeometry
+                // @ts-expect-error directive here
+                args={[
+                  'Mouse over',
+                  {
+                    font: us_projectsFont,
+                    size: 0.12,
+                    height: 0.1,
+                    curveSegments: 12,
+                    bevelEnabled: true,
+                    bevelThickness: 0.01,
+                    bevelSize: 0.005,
+                  }
+                ]}
+              />
+              <meshToonMaterial 
+                color={COLOR_PALETTE.white} 
+                opacity={1} 
+                transparent={false}
+                emissive={COLOR_PALETTE.white}
+                emissiveIntensity={1}
+              />
+            </mesh>
+          </group>}
+          {us_projectsFont && <group dispose={null} position={[4,2,0]}>
+            <mesh scale={[1, 1, 0.001]} {...props} position={[0,0,0]} rotation={[0,Math.PI/4,0]}>
+              <textGeometry
+                // @ts-expect-error directive here
+                args={[
+                  'Blue:',
+                  {
+                    font: us_projectsFont,
+                    size: 0.12,
+                    height: 0.1,
+                    curveSegments: 12,
+                    bevelEnabled: true,
+                    bevelThickness: 0.01,
+                    bevelSize: 0.005,
+                  }
+                ]}
+              />
+              <meshToonMaterial 
+                color={COLOR_PALETTE.darkBlue} 
+                opacity={1} 
+                transparent={false}
+                emissive={COLOR_PALETTE.darkBlue}
+                emissiveIntensity={1}
+              />
+            </mesh>
+            <mesh scale={[1, 1, 0.001]} {...props} position={[0,-0.3,0]} rotation={[0,Math.PI/4,0]}>
+              <textGeometry
+                // @ts-expect-error directive here
+                args={[
+                  'Click',
+                  {
+                    font: us_projectsFont,
+                    size: 0.12,
+                    height: 0.1,
+                    curveSegments: 12,
+                    bevelEnabled: true,
+                    bevelThickness: 0.01,
+                    bevelSize: 0.005,
+                  }
+                ]}
+              />
+              <meshToonMaterial 
+                color={COLOR_PALETTE.white} 
+                opacity={1} 
+                transparent={false}
+                emissive={COLOR_PALETTE.white}
+                emissiveIntensity={1}
+              />
+            </mesh>
+          </group>}
+          {us_projectsFont && <group dispose={null} position={[4,1,0]}>
+            <mesh scale={[1, 1, 0.001]} {...props} position={[0,0,0]} rotation={[0,Math.PI/4,0]}>
+              <textGeometry
+                // @ts-expect-error directive here
+                args={[
+                  'Click + drag mouse to rotate room',
+                  {
+                    font: us_projectsFont,
+                    size: 0.12,
+                    height: 0.1,
+                    curveSegments: 12,
+                    bevelEnabled: true,
+                    bevelThickness: 0.01,
+                    bevelSize: 0.005,
+                  }
+                ]}
+              />
+              <meshToonMaterial 
+                color={COLOR_PALETTE.white} 
+                opacity={1} 
+                transparent={false}
+                emissive={COLOR_PALETTE.white}
+                emissiveIntensity={1}
+              />
+            </mesh>
+          </group>}
+          {us_projectsFont && <group dispose={null} position={[4,0.8,0]}>
+            <mesh scale={[1, 1, 0.001]} {...props} position={[0,0,0]} rotation={[0,Math.PI/4,0]}>
+              <textGeometry
+                // @ts-expect-error directive here
+                args={[
+                  'Scroll to zoom in/out',
+                  {
+                    font: us_projectsFont,
+                    size: 0.12,
+                    height: 0.1,
+                    curveSegments: 12,
+                    bevelEnabled: true,
+                    bevelThickness: 0.01,
+                    bevelSize: 0.005,
+                  }
+                ]}
+              />
+              <meshToonMaterial 
+                color={COLOR_PALETTE.white} 
+                opacity={1} 
+                transparent={false}
+                emissive={COLOR_PALETTE.white}
+                emissiveIntensity={1}
+              />
+            </mesh>
+          </group>}
       </group>
   )
 }

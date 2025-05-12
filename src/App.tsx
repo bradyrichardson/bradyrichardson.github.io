@@ -3,15 +3,26 @@ import { BakeShadows, Bounds, OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import Room from './components/Room'
 import Start from './components/Start'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 function App() {
 const [us_isStartPage, us_setIsStartPage] = useState<boolean>(true)
+const mouseX = useRef(0)
+const mouseY = useRef(0)
 
-document.addEventListener('click', (e) => {
-    console.log('click', e)
+const handleMouseMove = (e: MouseEvent) => {
+  mouseX.current = (e.clientX / window.innerWidth) * 5 - 2.5
+  mouseY.current = ((window.innerHeight - e.clientY) / window.innerHeight) * 5 - 1.7
+}
+
+document.addEventListener('mousemove', handleMouseMove)
+
+useEffect(() => {
+  document.addEventListener('click', () => {
     us_setIsStartPage(false)
-  })
+    document.removeEventListener('mousemove', handleMouseMove)
+  }, { once: true })
+}, [])
 
   return (
     <>
@@ -22,7 +33,7 @@ document.addEventListener('click', (e) => {
       {/* <spotLight castShadow color="orange" intensity={2} position={[0, 7, -6]} angle={90} penumbra={1} shadow-mapSize={[128, 128]} shadow-bias={0.00005}/> */}
 
       <Bounds fit clip observe margin={1}>
-        {!us_isStartPage ? <Room /> : <Start /> }
+        {!us_isStartPage ? <Room /> : <Start mouseX={mouseX} mouseY={mouseY} /> }
       </Bounds>
       <BakeShadows />
 

@@ -2,6 +2,7 @@ import { JSX, useEffect, useRef, useState } from "react"
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js'
 import { extend, useFrame, useThree } from '@react-three/fiber'
 import { Font, FontLoader } from "three/examples/jsm/Addons.js"
+import { TextAnimation, animateText } from "../assets/util/helpers"
 
 // Extend Three.js with TextGeometry
 extend({ TextGeometry })
@@ -15,21 +16,11 @@ declare module '@react-three/fiber' {
 
 export default function Start({...props}): JSX.Element {
   const [projectsFont, setProjectsFont] = useState<Font | null>(null)
-  // @ts-expect-error directive here
-  const [us_showClickToContinue, us_setShowClickToContinue] = useState<boolean>(false)
   const [us_welcomeText, us_setWelcomeText] = useState("")
   const [us_clickText, us_setClickText] = useState("")
-  const mouseX = useRef(0)
-  const mouseY = useRef(0)
   
-  const welcomeMessage = "Welcome to my portfolio,"
-  const clickMessage = "please click anywhere to continue"
-
-  document.addEventListener('mousemove', (e) => {
-    mouseX.current = (e.clientX / window.innerWidth) * 5 - 2.5
-    mouseY.current = ((window.innerHeight - e.clientY) / window.innerHeight) * 5 - 1.7
-    us_setShowClickToContinue(true)
-  })
+  const welcomeMessage = "Welcome to my portfolio..."
+  const clickMessage = "Please use a mouse/keyboard for the best experience, and click anywhere to continue."
 
   const state = useThree()
 
@@ -48,38 +39,28 @@ export default function Start({...props}): JSX.Element {
     })
   }, [])
 
-  // Animate the welcome text
+  // Use the animation helper in useEffect
   useEffect(() => {
     if (!projectsFont) return;
 
-    let currentIndex = 0;
-    const welcomeInterval = setInterval(() => {
-      if (currentIndex <= welcomeMessage.length) {
-        us_setWelcomeText(welcomeMessage.slice(0, currentIndex))
-        currentIndex++
-      } else {
-        clearInterval(welcomeInterval)
-        // Start the click text animation after welcome text is done
-        let clickIndex = 0
-        const clickInterval = setInterval(() => {
-          if (clickIndex <= clickMessage.length) {
-            us_setClickText(clickMessage.slice(0, clickIndex))
-            clickIndex++
-          } else {
-            clearInterval(clickInterval)
-          }
-        }, 50) // Adjust speed as needed
+    const animations: TextAnimation[] = [
+      {
+        text: welcomeMessage,
+        setText: us_setWelcomeText,
+        delay: 500
+      },
+      {
+        text: clickMessage,
+        setText: us_setClickText
       }
-    }, 50) // Adjust speed as needed
+    ]
 
-    return () => {
-      clearInterval(welcomeInterval)
-    }
+    animateText(animations)
   }, [projectsFont])
 
   useFrame(() => {
-    const boundedX = Math.max(-5, Math.min(5, mouseX.current))
-    const boundedY = Math.max(-5, Math.min(5, mouseY.current))
+    const boundedX = Math.max(-5, Math.min(5, props.mouseX.current))
+    const boundedY = Math.max(-5, Math.min(5, props.mouseY.current))
     state.camera.lookAt(boundedX, boundedY, 0)
   })
 
@@ -117,7 +98,7 @@ export default function Start({...props}): JSX.Element {
           </group>
 
           {/* Click to Continue Text */}
-          <group dispose={null} position={[-5,5,0]}>
+          <group dispose={null} position={[-14,5,0]}>
             <mesh scale={[5, 5, 0.001]} {...props} position={[0,0,0]}>
               <textGeometry
                 // @ts-expect-error directive here
@@ -135,10 +116,10 @@ export default function Start({...props}): JSX.Element {
                 ]}
               />
               <meshToonMaterial 
-                color='#E16A54' 
+                color='#ffffff' 
                 opacity={1} 
                 transparent={false}
-                emissive='#E16A54'
+                emissive='#ffffff'
                 emissiveIntensity={1}
               />
             </mesh>
