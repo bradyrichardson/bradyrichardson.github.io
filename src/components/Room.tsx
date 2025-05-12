@@ -1918,7 +1918,7 @@ export default function Room({...props}): JSX.Element {
           boardNumber={1}
           position={displayBoardStartPosition}
           rotation={new THREE.Euler(0, Math.PI/4, 0)} 
-          imgPath='src/assets/lazynotes-logo.png'
+          imgPath='./src/assets/lazynotes-logo.png'
           title='LazyNotes'
           ref={projectDisplayBoardOneRef}
           color={COLOR_PALETTE.pink}
@@ -1928,7 +1928,7 @@ export default function Room({...props}): JSX.Element {
           boardNumber={2}
           position={displayBoardStartPosition}
           rotation={new THREE.Euler(0, Math.PI/4, 0)} 
-          imgPath='src/assets/turdl.png'
+          imgPath='./src/assets/turdl.png'
           title='Turdl'
           ref={projectDisplayBoardTwoRef}
           color={COLOR_PALETTE.darkGreen}
@@ -1938,7 +1938,7 @@ export default function Room({...props}): JSX.Element {
           boardNumber={3}
           position={displayBoardStartPosition}
           rotation={new THREE.Euler(0, Math.PI/4, 0)} 
-          imgPath='src/assets/poke-vision.png'
+          imgPath='./src/assets/poke-vision.png'
           title='Poke-vision'
           ref={projectDisplayBoardThreeRef}
           color={COLOR_PALETTE.canaryYellow}
@@ -1948,7 +1948,7 @@ export default function Room({...props}): JSX.Element {
           boardNumber={4}
           position={displayBoardStartPosition}
           rotation={new THREE.Euler(0, Math.PI/4, 0)} 
-          imgPath='src/assets/parapal-logo.png'
+          imgPath='./src/assets/parapal-logo.png'
           title='ParaPal'
           ref={projectDisplayBoardFourRef}
           color={COLOR_PALETTE.trueWhite}
