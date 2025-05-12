@@ -1,4 +1,4 @@
-import { JSX, useEffect, useRef, useState } from "react"
+import { JSX, useEffect, useState } from "react"
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js'
 import { extend, useFrame, useThree } from '@react-three/fiber'
 import { Font, FontLoader } from "three/examples/jsm/Addons.js"

@@ -35,9 +35,7 @@ export default function Room({...props}): JSX.Element {
   const bounceFactor = 0.6 // How much bounce (1 = perfect bounce, 0 = no bounce)
   const floorY = 0.105 // Y position of floor + ball radius
   const bookPageRotation = useRef(new THREE.Vector3(0, 0, 0))
-  const bookPagePosition = useRef(new THREE.Vector3(0, 0, 0))
   const [us_animationTriggered, us_setAnimationTriggered] = useState(false)
-  const [us_bookOpen, us_setBookOpen] = useState(false)
   const [us_stringLightsOn, us_setStringLightsOn] = useState(false)
   const [us_projectsFont, us_setProjectsFont] = useState<Font | null>(null)
   const projectDisplayBoardOneRef = useRef<THREE.Mesh>(null)
@@ -159,21 +157,6 @@ export default function Room({...props}): JSX.Element {
 
       // initial velocity when ball leaves stick
       ballVelocity.current = { x: 0.5, y: -1, z: 0.3 }
-    }
-  }
-
-  const handleWindowMouseOver = () => {
-    // us_setLeftWindowOpen(!us_leftWindowOpen)
-    // us_setRightWindowOpen(!us_rightWindowOpen)
-  }
-
-  const handleBookMouseOver = () => {
-    if (!us_bookOpen) {
-      us_setBookOpen(true)
-      bookPagePosition.current = new THREE.Vector3(1, 1, 1)
-    } else {
-      us_setBookOpen(false)
-      bookPagePosition.current = new THREE.Vector3(0, 0, 0)
     }
   }
 
@@ -1068,6 +1051,7 @@ export default function Room({...props}): JSX.Element {
   })
 
   // Then modify the WindowFrame component
+  // @ts-expect-error directive here
   const WindowFrame = forwardRef(({leftRef, rightRef, rotations, ...props}, ref): JSX.Element => {
     useFrame((_, delta) => {
       if (leftRef.current && rightRef.current) {
@@ -1087,6 +1071,7 @@ export default function Room({...props}): JSX.Element {
     }
 
   return (
+    // @ts-expect-error directive here
       <group position={props.position} rotation={props.rotation}>
         {/* Static frame parts */}
         <mesh>
@@ -1374,6 +1359,7 @@ export default function Room({...props}): JSX.Element {
 
   const OfficeChair = ({ position = [0, 0, 0] }) => {
     return (
+      // @ts-expect-error directive here
       <group position={position} rotation={[0, -Math.PI/4, 0]}>
         {/* Base with wheels */}
         <mesh position={[0, 0.15, 0]}>
@@ -1838,6 +1824,7 @@ export default function Room({...props}): JSX.Element {
         {/* {Box({position: [-2.7, 2.5, -1.025], geometry: [0.8, 1.5, 0.05], color: COLOR_PALETTE.white, transparent: true, opacity: 0.2, rotation: [0, -Math.PI/3, 0]})} */}
         {/* Left Window Frame */}
         <WindowFrame 
+          // @ts-expect-error directive here
           position={[0, 0, 0]}
           rotation={[0, 0, 0]}
           color={COLOR_PALETTE.white}
@@ -1847,6 +1834,7 @@ export default function Room({...props}): JSX.Element {
         />
         {/* Right Window Frame */}
         <WindowFrame 
+          // @ts-expect-error directive here
           position={[0, 0, 0.05]}
           rotation={[0, Math.PI/2, 0]}
           color={COLOR_PALETTE.white}
@@ -1918,7 +1906,7 @@ export default function Room({...props}): JSX.Element {
           boardNumber={1}
           position={displayBoardStartPosition}
           rotation={new THREE.Euler(0, Math.PI/4, 0)} 
-          imgPath='./src/assets/lazynotes-logo.png'
+          imgPath='../assets/lazynotes-logo.png'
           title='LazyNotes'
           ref={projectDisplayBoardOneRef}
           color={COLOR_PALETTE.pink}
@@ -1928,7 +1916,7 @@ export default function Room({...props}): JSX.Element {
           boardNumber={2}
           position={displayBoardStartPosition}
           rotation={new THREE.Euler(0, Math.PI/4, 0)} 
-          imgPath='./src/assets/turdl.png'
+          imgPath='../assets/turdl.png'
           title='Turdl'
           ref={projectDisplayBoardTwoRef}
           color={COLOR_PALETTE.darkGreen}
@@ -1938,7 +1926,7 @@ export default function Room({...props}): JSX.Element {
           boardNumber={3}
           position={displayBoardStartPosition}
           rotation={new THREE.Euler(0, Math.PI/4, 0)} 
-          imgPath='./src/assets/poke-vision.png'
+          imgPath='../assets/poke-vision.png'
           title='Poke-vision'
           ref={projectDisplayBoardThreeRef}
           color={COLOR_PALETTE.canaryYellow}
@@ -1948,7 +1936,7 @@ export default function Room({...props}): JSX.Element {
           boardNumber={4}
           position={displayBoardStartPosition}
           rotation={new THREE.Euler(0, Math.PI/4, 0)} 
-          imgPath='./src/assets/parapal-logo.png'
+          imgPath='../assets/parapal-logo.png'
           title='ParaPal'
           ref={projectDisplayBoardFourRef}
           color={COLOR_PALETTE.trueWhite}
