@@ -20,7 +20,7 @@ export default function Start({...props}): JSX.Element {
   const [us_clickText, us_setClickText] = useState("")
   
   const welcomeMessage = "Welcome to my portfolio..."
-  const clickMessage = "Please use a mouse/keyboard for the best experience, and click anywhere to continue."
+  const clickMessage = "Click anywhere to continue."
 
   const state = useThree()
 
@@ -47,7 +47,7 @@ export default function Start({...props}): JSX.Element {
       {
         text: welcomeMessage,
         setText: us_setWelcomeText,
-        delay: 500
+        delay: 50
       },
       {
         text: clickMessage,
@@ -98,7 +98,7 @@ export default function Start({...props}): JSX.Element {
           </group>
 
           {/* Click to Continue Text */}
-          <group dispose={null} position={[-14,5,0]}>
+          <group dispose={null} position={[-5.1,5,0]}>
             <mesh scale={[5, 5, 0.001]} {...props} position={[0,0,0]}>
               <textGeometry
                 // @ts-expect-error directive here

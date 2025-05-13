@@ -5,6 +5,10 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js'
 import { Font, FontLoader } from "three/examples/jsm/Addons.js"
 import { extend } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
+import turdlImage from '/src/assets/turdl.png'
+import lazynotesLogo from '/src/assets/lazynotes-logo.png'
+import pokeVision from '/src/assets/poke-vision.png'
+import parapalLogo from '/src/assets/parapal-logo.png'
 
 extend({ TextGeometry })
 
@@ -124,7 +128,6 @@ export default function Room({...props}): JSX.Element {
           // if the board is currently being displayed...if it is, then we want to open the link
           // but if it's not, then we don't want to open the link...the issue is that clicks in
           // threeJS will go through objects and click on the boards even if they are not currently being displayed
-          // FIXME: checks not working yet
           if (projectDisplayBoardOneRef.current.position.y > displayBoardStartPosition.y + 0.05) {
             window.open(link, '_blank')
           }
@@ -1448,7 +1451,7 @@ export default function Room({...props}): JSX.Element {
         targetRotation.current = Math.PI / 2 // 90 degrees open
         setIsOpen(true)
         // Delay showing text until book is mostly open
-        setTimeout(() => setShowText(true), 500)
+        setTimeout(() => setShowText(true), 100)
       }
     }
 
@@ -1906,7 +1909,7 @@ export default function Room({...props}): JSX.Element {
           boardNumber={1}
           position={displayBoardStartPosition}
           rotation={new THREE.Euler(0, Math.PI/4, 0)} 
-          imgPath='/assets/lazynotes-logo.png'
+          imgPath={lazynotesLogo}
           title='LazyNotes'
           ref={projectDisplayBoardOneRef}
           color={COLOR_PALETTE.pink}
@@ -1916,7 +1919,7 @@ export default function Room({...props}): JSX.Element {
           boardNumber={2}
           position={displayBoardStartPosition}
           rotation={new THREE.Euler(0, Math.PI/4, 0)} 
-          imgPath='/assets/turdl.png'
+          imgPath={turdlImage}
           title='Turdl'
           ref={projectDisplayBoardTwoRef}
           color={COLOR_PALETTE.darkGreen}
@@ -1926,7 +1929,7 @@ export default function Room({...props}): JSX.Element {
           boardNumber={3}
           position={displayBoardStartPosition}
           rotation={new THREE.Euler(0, Math.PI/4, 0)} 
-          imgPath='/assets/poke-vision.png'
+          imgPath={pokeVision}
           title='Poke-vision'
           ref={projectDisplayBoardThreeRef}
           color={COLOR_PALETTE.canaryYellow}
@@ -1936,7 +1939,7 @@ export default function Room({...props}): JSX.Element {
           boardNumber={4}
           position={displayBoardStartPosition}
           rotation={new THREE.Euler(0, Math.PI/4, 0)} 
-          imgPath='/assets/parapal-logo.png'
+          imgPath={parapalLogo}
           title='ParaPal'
           ref={projectDisplayBoardFourRef}
           color={COLOR_PALETTE.trueWhite}
