@@ -1436,7 +1436,7 @@ export default function Room({...props}): JSX.Element {
       if (leftCoverRef.current && rightCoverRef.current) {
         // smoothly animate the covers
         const currentRotation = leftCoverRef.current.rotation.y
-        const newRotation = currentRotation + (targetRotation.current - currentRotation) * delta * 10
+        const newRotation = currentRotation + (targetRotation.current - currentRotation) * delta * 5
         
         // leftCoverRef.current.rotation.y = newRotation
         // rightCoverRef.current.rotation.y = -newRotation
@@ -1866,9 +1866,9 @@ export default function Room({...props}): JSX.Element {
           distance={0.3}
         />
         {/* About Me text */}
-        {/* {us_projectsFont && us_stringLightsOn && (
+        {us_projectsFont && us_stringLightsOn && (
           <mesh 
-            position={[-1.85, 3.7, -1.5]} 
+            position={[-1.85, 3.7, -0.5]} 
             rotation={[0, Math.PI/4, 0]}
             scale={[1, 1, 0.001]}
           >
@@ -1891,7 +1891,7 @@ export default function Room({...props}): JSX.Element {
               color={COLOR_PALETTE.trueWhite} emissive={COLOR_PALETTE.white} emissiveIntensity={0.5}
             />
           </mesh>
-        )} */}
+        )}
         {/* right side string lights */}
         {StringLights({position: [-.35,1,-0.73], rotation: [0,Math.PI/2,0]})}
         {StringLights({position: [0.65,1,-0.73], rotation: [0,Math.PI/2,0]})}
