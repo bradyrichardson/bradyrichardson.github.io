@@ -1913,7 +1913,7 @@ export default function Room({...props}): JSX.Element {
           title='LazyNotes'
           ref={projectDisplayBoardOneRef}
           color={COLOR_PALETTE.pink}
-          link='https://github.com/bradyrichardson/LazyNotes'
+          link='https://github.com/bradyrichardson/LazyNotes-demo'
         />
         <ProjectDisplayBoard
           boardNumber={2}
