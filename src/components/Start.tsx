@@ -31,9 +31,7 @@ export default function Start({...props}): JSX.Element {
       setProjectsFont(loadedFont)
     },
     // Add success and error handlers
-    (xhr) => {
-      console.log((xhr.loaded / xhr.total * 100) + '% loaded')
-    },
+    (xhr) => {},
     (error) => {
       console.error('Font loading error:', error)
     })

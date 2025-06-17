@@ -1225,9 +1225,7 @@ export default function Room({...props}): JSX.Element {
     loader.load('./fonts/Roboto Condensed_Regular.json', (loadedFont) => {
       us_setProjectsFont(loadedFont)
     },
-    (xhr) => {
-      console.log((xhr.loaded / xhr.total * 100) + '% loaded')
-    },
+    (xhr) => {},
     (error) => {
       console.error('Font loading error:', error)
     })
