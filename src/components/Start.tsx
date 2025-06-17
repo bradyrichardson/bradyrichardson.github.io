@@ -15,7 +15,7 @@ declare module '@react-three/fiber' {
 }
 
 export default function Start({...props}): JSX.Element {
-  const [projectsFont, setProjectsFont] = useState<Font | null>(null)
+  const [us_projectsFont, us_setProjectsFont] = useState<Font | null>(null)
   const [us_welcomeText, us_setWelcomeText] = useState("")
   const [us_clickText, us_setClickText] = useState("")
   
@@ -28,18 +28,13 @@ export default function Start({...props}): JSX.Element {
   useEffect(() => {
     const loader = new FontLoader()
     loader.load('./fonts/Roboto Condensed_Regular.json', (loadedFont) => {
-      setProjectsFont(loadedFont)
-    },
-    // Add success and error handlers
-    (xhr) => {},
-    (error) => {
-      console.error('Font loading error:', error)
+      us_setProjectsFont(loadedFont)
     })
   }, [])
 
   // Use the animation helper in useEffect
   useEffect(() => {
-    if (!projectsFont) return;
+    if (!us_projectsFont) return;
 
     const animations: TextAnimation[] = [
       {
@@ -54,7 +49,7 @@ export default function Start({...props}): JSX.Element {
     ]
 
     animateText(animations)
-  }, [projectsFont])
+  }, [us_projectsFont])
 
   useFrame(() => {
     const boundedX = Math.max(-5, Math.min(5, props.mouseX.current))
@@ -65,7 +60,7 @@ export default function Start({...props}): JSX.Element {
 
   return (
     <>
-      {projectsFont && (
+      {us_projectsFont && (
         <group dispose={null} rotation={[0, Math.PI/4, 0]}>
           {/* Welcome Text */}
           <group dispose={null} position={[-5,7,0]}>
@@ -75,7 +70,7 @@ export default function Start({...props}): JSX.Element {
                 args={[
                   us_welcomeText,
                   {
-                    font: projectsFont,
+                    font: us_projectsFont,
                     size: 0.12,
                     height: 0.1,
                     curveSegments: 12,
@@ -103,7 +98,7 @@ export default function Start({...props}): JSX.Element {
                 args={[
                   us_clickText,
                   {
-                    font: projectsFont,
+                    font: us_projectsFont,
                     size: 0.12,
                     height: 0.1,
                     curveSegments: 12,
