@@ -4,11 +4,26 @@ import { Canvas } from '@react-three/fiber'
 import Room from './components/Room'
 import Start from './components/Start'
 import { useEffect, useRef, useState } from 'react'
+import * as THREE from 'three'
 
 function App() {
 const [us_isStartPage, us_setIsStartPage] = useState<boolean>(true)
 const mouseX = useRef(0)
 const mouseY = useRef(0)
+
+// Initialize orthographic camera with proper frustum
+const aspect = window.innerWidth / window.innerHeight
+const frustumSize = 10
+const camera = new THREE.OrthographicCamera(
+  frustumSize * aspect / -2,
+  frustumSize * aspect / 2,
+  frustumSize / 2,
+  frustumSize / -2,
+  0.1,
+  1000
+)
+camera.position.set(10, 10, 10)
+camera.lookAt(0, 0, 0)
 
 const handleMouseMove = (e: MouseEvent) => {
   mouseX.current = (e.clientX / window.innerWidth) * 5 - 2.5
@@ -21,38 +36,31 @@ const handleClick = () => {
   document.removeEventListener('click', handleClick)
 }
 
-document.addEventListener('mousemove', handleMouseMove)
-
 useEffect(() => {
   document.addEventListener('click', handleClick)
+  document.addEventListener('mousemove', handleMouseMove)
 }, [])
 
   return (
     <>
-    <Canvas orthographic shadows dpr={[1, 2]} camera={{ position: [10, 10, 10], zoom: 10 }} style={{height: window.innerHeight, width: window.innerWidth, display: 'flex', justifySelf: 'center', alignSelf: 'center'}}>
-    <color attach="background" args={['#000000']} />
+    <Canvas orthographic shadows dpr={[1, 2]} camera={camera} style={{height: window.innerHeight, width: window.innerWidth, display: 'flex', justifySelf: 'center', alignSelf: 'center', backgroundColor: '#000000'}}>
       <Bounds fit clip observe margin={1}>
         {!us_isStartPage ? <Room /> : <Start mouseX={mouseX} mouseY={mouseY} /> }
       </Bounds>
       <BakeShadows />
 
       <OrbitControls
+        camera={camera}
         makeDefault
         minAzimuthAngle={0}
         maxAzimuthAngle={Math.PI / 2}
         // minPolarAngle={5 * Math.PI / 6}
-        minZoom={70}
         maxPolarAngle={Math.PI / 2}
         enableZoom={true}
         enablePan={true}
         enableRotate={true}
         zoomSpeed={0.3}
       />
-      {/* <gridHelper args={[1000, 200, '#151515', '#020202']} position={[0, -4, 0]} /> */}
-      <mesh scale={200} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]} receiveShadow>
-        <planeGeometry/>
-        <meshPhongMaterial opacity={1} color="#6B6B6B" /> 
-      </mesh>
     </Canvas>
     </>
   )
