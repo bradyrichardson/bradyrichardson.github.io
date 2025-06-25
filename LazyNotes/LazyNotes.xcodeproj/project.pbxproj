@@ -1,0 +1,593 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AF67727B2E0A480C00911A5A /* LazyNotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF67727A2E0A480C00911A5A /* LazyNotesApp.swift */; };
+		AF67727D2E0A480C00911A5A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF67727C2E0A480C00911A5A /* ContentView.swift */; };
+		AF67727F2E0A480C00911A5A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AF67727E2E0A480C00911A5A /* Assets.xcassets */; };
+		AF6772822E0A480C00911A5A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AF6772812E0A480C00911A5A /* Preview Assets.xcassets */; };
+		AF67728C2E0A480C00911A5A /* LazyNotesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF67728B2E0A480C00911A5A /* LazyNotesTests.swift */; };
+		AF6772962E0A480C00911A5A /* LazyNotesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF6772952E0A480C00911A5A /* LazyNotesUITests.swift */; };
+		AF6772982E0A480C00911A5A /* LazyNotesUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF6772972E0A480C00911A5A /* LazyNotesUITestsLaunchTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		AF6772882E0A480C00911A5A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AF67726F2E0A480C00911A5A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AF6772762E0A480C00911A5A;
+			remoteInfo = LazyNotes;
+		};
+		AF6772922E0A480C00911A5A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AF67726F2E0A480C00911A5A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AF6772762E0A480C00911A5A;
+			remoteInfo = LazyNotes;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		AF6772772E0A480C00911A5A /* LazyNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LazyNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AF67727A2E0A480C00911A5A /* LazyNotesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyNotesApp.swift; sourceTree = "<group>"; };
+		AF67727C2E0A480C00911A5A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		AF67727E2E0A480C00911A5A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		AF6772812E0A480C00911A5A /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		AF6772872E0A480C00911A5A /* LazyNotesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LazyNotesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AF67728B2E0A480C00911A5A /* LazyNotesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyNotesTests.swift; sourceTree = "<group>"; };
+		AF6772912E0A480C00911A5A /* LazyNotesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LazyNotesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AF6772952E0A480C00911A5A /* LazyNotesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyNotesUITests.swift; sourceTree = "<group>"; };
+		AF6772972E0A480C00911A5A /* LazyNotesUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyNotesUITestsLaunchTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AF6772742E0A480C00911A5A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AF6772842E0A480C00911A5A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AF67728E2E0A480C00911A5A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AF67726E2E0A480C00911A5A = {
+			isa = PBXGroup;
+			children = (
+				AF6772792E0A480C00911A5A /* LazyNotes */,
+				AF67728A2E0A480C00911A5A /* LazyNotesTests */,
+				AF6772942E0A480C00911A5A /* LazyNotesUITests */,
+				AF6772782E0A480C00911A5A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AF6772782E0A480C00911A5A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AF6772772E0A480C00911A5A /* LazyNotes.app */,
+				AF6772872E0A480C00911A5A /* LazyNotesTests.xctest */,
+				AF6772912E0A480C00911A5A /* LazyNotesUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AF6772792E0A480C00911A5A /* LazyNotes */ = {
+			isa = PBXGroup;
+			children = (
+				AF67727A2E0A480C00911A5A /* LazyNotesApp.swift */,
+				AF67727C2E0A480C00911A5A /* ContentView.swift */,
+				AF67727E2E0A480C00911A5A /* Assets.xcassets */,
+				AF6772802E0A480C00911A5A /* Preview Content */,
+			);
+			path = LazyNotes;
+			sourceTree = "<group>";
+		};
+		AF6772802E0A480C00911A5A /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				AF6772812E0A480C00911A5A /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		AF67728A2E0A480C00911A5A /* LazyNotesTests */ = {
+			isa = PBXGroup;
+			children = (
+				AF67728B2E0A480C00911A5A /* LazyNotesTests.swift */,
+			);
+			path = LazyNotesTests;
+			sourceTree = "<group>";
+		};
+		AF6772942E0A480C00911A5A /* LazyNotesUITests */ = {
+			isa = PBXGroup;
+			children = (
+				AF6772952E0A480C00911A5A /* LazyNotesUITests.swift */,
+				AF6772972E0A480C00911A5A /* LazyNotesUITestsLaunchTests.swift */,
+			);
+			path = LazyNotesUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AF6772762E0A480C00911A5A /* LazyNotes */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AF67729B2E0A480C00911A5A /* Build configuration list for PBXNativeTarget "LazyNotes" */;
+			buildPhases = (
+				AF6772732E0A480C00911A5A /* Sources */,
+				AF6772742E0A480C00911A5A /* Frameworks */,
+				AF6772752E0A480C00911A5A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LazyNotes;
+			productName = LazyNotes;
+			productReference = AF6772772E0A480C00911A5A /* LazyNotes.app */;
+			productType = "com.apple.product-type.application";
+		};
+		AF6772862E0A480C00911A5A /* LazyNotesTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AF67729E2E0A480C00911A5A /* Build configuration list for PBXNativeTarget "LazyNotesTests" */;
+			buildPhases = (
+				AF6772832E0A480C00911A5A /* Sources */,
+				AF6772842E0A480C00911A5A /* Frameworks */,
+				AF6772852E0A480C00911A5A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AF6772892E0A480C00911A5A /* PBXTargetDependency */,
+			);
+			name = LazyNotesTests;
+			productName = LazyNotesTests;
+			productReference = AF6772872E0A480C00911A5A /* LazyNotesTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		AF6772902E0A480C00911A5A /* LazyNotesUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AF6772A12E0A480C00911A5A /* Build configuration list for PBXNativeTarget "LazyNotesUITests" */;
+			buildPhases = (
+				AF67728D2E0A480C00911A5A /* Sources */,
+				AF67728E2E0A480C00911A5A /* Frameworks */,
+				AF67728F2E0A480C00911A5A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AF6772932E0A480C00911A5A /* PBXTargetDependency */,
+			);
+			name = LazyNotesUITests;
+			productName = LazyNotesUITests;
+			productReference = AF6772912E0A480C00911A5A /* LazyNotesUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AF67726F2E0A480C00911A5A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					AF6772762E0A480C00911A5A = {
+						CreatedOnToolsVersion = 15.4;
+					};
+					AF6772862E0A480C00911A5A = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = AF6772762E0A480C00911A5A;
+					};
+					AF6772902E0A480C00911A5A = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = AF6772762E0A480C00911A5A;
+					};
+				};
+			};
+			buildConfigurationList = AF6772722E0A480C00911A5A /* Build configuration list for PBXProject "LazyNotes" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = AF67726E2E0A480C00911A5A;
+			productRefGroup = AF6772782E0A480C00911A5A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AF6772762E0A480C00911A5A /* LazyNotes */,
+				AF6772862E0A480C00911A5A /* LazyNotesTests */,
+				AF6772902E0A480C00911A5A /* LazyNotesUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AF6772752E0A480C00911A5A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AF6772822E0A480C00911A5A /* Preview Assets.xcassets in Resources */,
+				AF67727F2E0A480C00911A5A /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AF6772852E0A480C00911A5A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AF67728F2E0A480C00911A5A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AF6772732E0A480C00911A5A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AF67727D2E0A480C00911A5A /* ContentView.swift in Sources */,
+				AF67727B2E0A480C00911A5A /* LazyNotesApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AF6772832E0A480C00911A5A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AF67728C2E0A480C00911A5A /* LazyNotesTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AF67728D2E0A480C00911A5A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AF6772982E0A480C00911A5A /* LazyNotesUITestsLaunchTests.swift in Sources */,
+				AF6772962E0A480C00911A5A /* LazyNotesUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		AF6772892E0A480C00911A5A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AF6772762E0A480C00911A5A /* LazyNotes */;
+			targetProxy = AF6772882E0A480C00911A5A /* PBXContainerItemProxy */;
+		};
+		AF6772932E0A480C00911A5A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AF6772762E0A480C00911A5A /* LazyNotes */;
+			targetProxy = AF6772922E0A480C00911A5A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		AF6772992E0A480C00911A5A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		AF67729A2E0A480C00911A5A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		AF67729C2E0A480C00911A5A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"LazyNotes/Preview Content\"";
+				DEVELOPMENT_TEAM = WG8VHBU233;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = bradyrichardson.LazyNotes;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AF67729D2E0A480C00911A5A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"LazyNotes/Preview Content\"";
+				DEVELOPMENT_TEAM = WG8VHBU233;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = bradyrichardson.LazyNotes;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		AF67729F2E0A480C00911A5A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WG8VHBU233;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = bradyrichardson.LazyNotesTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LazyNotes.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LazyNotes";
+			};
+			name = Debug;
+		};
+		AF6772A02E0A480C00911A5A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WG8VHBU233;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = bradyrichardson.LazyNotesTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LazyNotes.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LazyNotes";
+			};
+			name = Release;
+		};
+		AF6772A22E0A480C00911A5A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WG8VHBU233;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = bradyrichardson.LazyNotesUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = LazyNotes;
+			};
+			name = Debug;
+		};
+		AF6772A32E0A480C00911A5A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WG8VHBU233;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = bradyrichardson.LazyNotesUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = LazyNotes;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AF6772722E0A480C00911A5A /* Build configuration list for PBXProject "LazyNotes" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AF6772992E0A480C00911A5A /* Debug */,
+				AF67729A2E0A480C00911A5A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AF67729B2E0A480C00911A5A /* Build configuration list for PBXNativeTarget "LazyNotes" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AF67729C2E0A480C00911A5A /* Debug */,
+				AF67729D2E0A480C00911A5A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AF67729E2E0A480C00911A5A /* Build configuration list for PBXNativeTarget "LazyNotesTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AF67729F2E0A480C00911A5A /* Debug */,
+				AF6772A02E0A480C00911A5A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AF6772A12E0A480C00911A5A /* Build configuration list for PBXNativeTarget "LazyNotesUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AF6772A22E0A480C00911A5A /* Debug */,
+				AF6772A32E0A480C00911A5A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AF67726F2E0A480C00911A5A /* Project object */;
+}

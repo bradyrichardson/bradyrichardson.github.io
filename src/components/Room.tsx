@@ -433,7 +433,7 @@ export default function Room({...props}): JSX.Element {
         <pointLight
           position={[0, 0.3, 0]}
           intensity={!us_lightOne ? 0.4 : 0}
-          color={COLOR_PALETTE.orange}
+          color={COLOR_PALETTE.beige}
           distance={1}
         />
 
@@ -647,7 +647,7 @@ export default function Room({...props}): JSX.Element {
         <pointLight
           position={[-0.35, 0.22, 0]}
           intensity={!us_laptopOn ? 0.5 : 0}
-          color={COLOR_PALETTE.orange}
+          color={COLOR_PALETTE.beige}
           distance={0.5}
         />
         
@@ -665,11 +665,11 @@ export default function Room({...props}): JSX.Element {
           {/* LinkedIn Logo */}
           {us_laptopOn && (
             <mesh 
-              position={[0, -0.02, -0.1]} 
+              position={[0, -0.4, -0.25]} 
               rotation={[Math.PI/2, 0, 3*Math.PI/2]}
               onClick={() => window.open("https://www.linkedin.com/in/brady-r-richardson/", "_blank")}
             >
-              <planeGeometry args={[0.15, 0.15]} />
+              <planeGeometry args={[0.5, 0.5]} />
               <meshBasicMaterial map={linkedInTexture} transparent={true} alphaTest={0.1} />
             </mesh>
           )}
@@ -677,11 +677,11 @@ export default function Room({...props}): JSX.Element {
           {/* GitHub Logo */}
           {us_laptopOn && (
             <mesh 
-              position={[0, -0.02, 0.1]} 
+              position={[0, -0.4, 0.25]}
               rotation={[Math.PI/2, 0, 3*Math.PI/2]}
               onClick={() => window.open("https://github.com/bradyrichardson", "_blank")}
             >
-              <planeGeometry args={[0.15, 0.15]} />
+              <planeGeometry args={[0.5, 0.5]} />
               <meshBasicMaterial map={githubTexture} transparent={true} alphaTest={0.1} />
             </mesh>
           )}
@@ -720,7 +720,7 @@ export default function Room({...props}): JSX.Element {
           color: COLOR_PALETTE.black,
           // @ts-expect-error directive here
           onClick: props.onClick,
-          emissive: !us_lightOne ? COLOR_PALETTE.darkBlue : COLOR_PALETTE.black,
+          emissive: !us_lightOne ? COLOR_PALETTE.silver : COLOR_PALETTE.black,
           emissiveIntensity: !us_lightOne ? 0.5 : 0
         })}
         {/* Drawer Outer Wall */}
@@ -1097,7 +1097,7 @@ export default function Room({...props}): JSX.Element {
             color: COLOR_PALETTE.white
           })}
           {/* Window Sill  */}
-          {Box({position: [0.012, 1.8, -2.5], geometry: [1.6,0.1,0.5], onPointerOver: handleWindowMouseOver, emissive: COLOR_PALETTE.orange, emissiveIntensity: !us_lightOne && !us_stringLightsOn ? 0.5 : 0})}
+          {Box({position: [0.012, 1.8, -2.5], geometry: [1.6,0.1,0.5], onPointerOver: handleWindowMouseOver, emissive: COLOR_PALETTE.beige, emissiveIntensity: !us_lightOne && !us_stringLightsOn ? 0.5 : 0})}
         </mesh>
 
         {/* Left window (animated) */}
@@ -1486,7 +1486,7 @@ export default function Room({...props}): JSX.Element {
         <group ref={rightCoverRef} position={[0.25, 0.03, 0]}>
           <mesh position={[-0.25, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
             <boxGeometry args={[0.5, 0.5, 0.02]} />
-            <meshStandardMaterial color={COLOR_PALETTE.silver} emissive={COLOR_PALETTE.orange} emissiveIntensity={!us_stringLightsOn && !us_lightOne ? 0.5 : 0} />
+            <meshStandardMaterial color={COLOR_PALETTE.silver} emissive={COLOR_PALETTE.beige} emissiveIntensity={!us_stringLightsOn && !us_lightOne ? 0.5 : 0} />
           </mesh>
         </group>
 
@@ -1812,7 +1812,7 @@ export default function Room({...props}): JSX.Element {
           onPointerOver={handleLacrosseBallMouseOver}
         >
           <sphereGeometry args={[0.06]} />
-          <meshToonMaterial color={COLOR_PALETTE.trueWhite} emissive={COLOR_PALETTE.orange}
+          <meshToonMaterial color={COLOR_PALETTE.trueWhite} emissive={COLOR_PALETTE.beige}
           emissiveIntensity={!us_lightOne && !us_lightTwo && !us_laptopOn ? 0.5 : 0} />
         </mesh>
         {/* Windows */}
@@ -1842,7 +1842,7 @@ export default function Room({...props}): JSX.Element {
         {Box({
           position: [1.675, 2, -2.39],
           geometry: [0.05, 0.1, 0.05],
-          color: us_stringLightsOn ? COLOR_PALETTE.white : COLOR_PALETTE.orange,
+          color: us_stringLightsOn ? COLOR_PALETTE.white : COLOR_PALETTE.beige,
         })}
         {Box({
           position: [1.675, 2, -2.45],
@@ -1856,7 +1856,7 @@ export default function Room({...props}): JSX.Element {
         <pointLight
           position={[1.675, 2, -2.3]}
           intensity={us_stringLightsOn ? 0 : 0.1}
-          color={COLOR_PALETTE.orange}
+          color={COLOR_PALETTE.beige}
           distance={0.3}
         />
         {/* About Me text */}
@@ -1940,12 +1940,12 @@ export default function Room({...props}): JSX.Element {
           link='https://github.com/bradyrichardson/ParaPal-demo'
         />
         {/* Help text */}
-        {us_projectsFont && <group dispose={null} position={[4,3,0]}>
+        {us_projectsFont && <group dispose={null} position={[3,3,0]}>
             <mesh scale={[1, 1, 0.001]} {...props} position={[0,0,0]} rotation={[0,Math.PI/4,0]}>
               <textGeometry
                 // @ts-expect-error directive here
                 args={[
-                  'Orange:',
+                  'Gold:',
                   {
                     font: us_projectsFont,
                     size: 0.12,
@@ -1958,10 +1958,10 @@ export default function Room({...props}): JSX.Element {
                 ]}
               />
               <meshToonMaterial 
-                color={COLOR_PALETTE.orange} 
+                color={COLOR_PALETTE.beige} 
                 opacity={1} 
                 transparent={false}
-                emissive={COLOR_PALETTE.orange}
+                emissive={COLOR_PALETTE.beige}
                 emissiveIntensity={1}
               />
             </mesh>
@@ -1990,12 +1990,12 @@ export default function Room({...props}): JSX.Element {
               />
             </mesh>
           </group>}
-          {us_projectsFont && <group dispose={null} position={[4,2,0]}>
+          {us_projectsFont && <group dispose={null} position={[3,2,0]}>
             <mesh scale={[1, 1, 0.001]} {...props} position={[0,0,0]} rotation={[0,Math.PI/4,0]}>
               <textGeometry
                 // @ts-expect-error directive here
                 args={[
-                  'Blue:',
+                  'Silver:',
                   {
                     font: us_projectsFont,
                     size: 0.12,
@@ -2008,10 +2008,10 @@ export default function Room({...props}): JSX.Element {
                 ]}
               />
               <meshToonMaterial 
-                color={COLOR_PALETTE.darkBlue} 
+                color={COLOR_PALETTE.silver} 
                 opacity={1} 
                 transparent={false}
-                emissive={COLOR_PALETTE.darkBlue}
+                emissive={COLOR_PALETTE.silver}
                 emissiveIntensity={1}
               />
             </mesh>
@@ -2040,12 +2040,12 @@ export default function Room({...props}): JSX.Element {
               />
             </mesh>
           </group>}
-          {us_projectsFont && <group dispose={null} position={[4,1,0]}>
+          {us_projectsFont && <group dispose={null} position={[3,1,0]}>
             <mesh scale={[1, 1, 0.001]} {...props} position={[0,0,0]} rotation={[0,Math.PI/4,0]}>
               <textGeometry
                 // @ts-expect-error directive here
                 args={[
-                  'Click + drag mouse to rotate room',
+                  'Click + drag mouse\n to rotate',
                   {
                     font: us_projectsFont,
                     size: 0.12,
@@ -2066,7 +2066,7 @@ export default function Room({...props}): JSX.Element {
               />
             </mesh>
           </group>}
-          {us_projectsFont && <group dispose={null} position={[4,0.8,0]}>
+          {/* {us_projectsFont && <group dispose={null} position={[4,0.4,0]}>
             <mesh scale={[1, 1, 0.001]} {...props} position={[0,0,0]} rotation={[0,Math.PI/4,0]}>
               <textGeometry
                 // @ts-expect-error directive here
@@ -2091,7 +2091,7 @@ export default function Room({...props}): JSX.Element {
                 emissiveIntensity={1}
               />
             </mesh>
-          </group>}
+          </group>} */}
       </group>
   )
 }
