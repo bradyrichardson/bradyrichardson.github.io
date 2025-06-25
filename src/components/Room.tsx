@@ -1569,7 +1569,7 @@ export default function Room({...props}): JSX.Element {
         {/* <ambientLight intensity={0.5} /> */}
         {/* <directionalLight position={[0, 5, -5]} intensity={1} /> */}
         {/* Floor */}
-        {Box({position: [0,0,0], geometry: [5.1, 0.1, 5.1], color: COLOR_PALETTE.test })}
+        {Box({position: [0,-0.02,0], geometry: [5.1, 0.1, 5.1], color: COLOR_PALETTE.test })}
         {/* Walls */}
         {/* Right Wall */}
         {Box({position: [-1.62,0.9,-2.5], geometry: [1.85,1.75,0.1], color: COLOR_PALETTE.darkBlue })}
@@ -1681,12 +1681,12 @@ export default function Room({...props}): JSX.Element {
           color: COLOR_PALETTE.white
         })}
         {/* Dresser */}
-        {Box({position: [-2.4, 1, 1.8], geometry: [0.1, 2, 1.498], color: COLOR_PALETTE.darkBrown})}
-        {Box({position: [-1.8, 1, 1.1], geometry: [1.5, 2, 0.1], color: COLOR_PALETTE.darkBrown})}
-        {Box({position: [-1.8, 1, 2.499], geometry: [1.5, 2, 0.1], color: COLOR_PALETTE.darkBrown})}
-        {Box({position: [-1.8, 1.95, 1.799], geometry: [1.5, 0.1, 1.5], color: COLOR_PALETTE.darkBrown})}
-        {Box({position: [-1.8, 1.95, 1.799], geometry: [1.5, 0.1, 1.5], color: COLOR_PALETTE.darkBrown})}
-        {Box({position: [-1.8, 0.15, 1.799], geometry: [0.5, 0.2, 1.5], color: COLOR_PALETTE.darkBrown})}
+        {Box({position: [-2.3, 1, 1.8], geometry: [0.1, 2, 1.498], color: COLOR_PALETTE.darkBrown})}
+        {Box({position: [-1.75, 1, 1.1], geometry: [1.5, 2, 0.1], color: COLOR_PALETTE.darkBrown})}
+        {Box({position: [-1.75, 1, 2.499], geometry: [1.5, 2, 0.1], color: COLOR_PALETTE.darkBrown})}
+        {Box({position: [-1.75, 1.95, 1.799], geometry: [1.5, 0.1, 1.5], color: COLOR_PALETTE.darkBrown})}
+        {Box({position: [-1.75, 1.95, 1.799], geometry: [1.5, 0.1, 1.5], color: COLOR_PALETTE.darkBrown})}
+        {Box({position: [-1.75, 0.15, 1.799], geometry: [0.5, 0.2, 1.5], color: COLOR_PALETTE.darkBrown})}
         {/* Drawers */}
         {Drawers({position: [-1.8, 0.5, 1.799], rotation: [0, 0, 0]})}
         {/* Projects Text */}
