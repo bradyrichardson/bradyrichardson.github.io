@@ -80,13 +80,12 @@ const camera = useMemo(() => {
     0.1,
     1000
   )
-  cam.position.set(10, 10, 10)
+  cam.position.set(10, 7, 10)
   cam.lookAt(0, 0, 0)
   return cam
 }, []) // Empty dependency array means this only runs once
 
 const handleScroll = () => {
-  console.log(window.scrollY)
   us_setScrollPosition(window.scrollY)
 }
 
