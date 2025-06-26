@@ -1230,7 +1230,7 @@ export default function Room({...props}): JSX.Element {
   const ProjectDisplayBoard = forwardRef(({...props}: {imgPath: string, rotation: THREE.Euler, position: THREE.Vector3, title: string, color: string, link: string, boardNumber: number}, ref): JSX.Element => {  
     const texture = new THREE.TextureLoader().load(props.imgPath);
 
-    const displayBoardOneEndPosition = new THREE.Vector3(0,2.1,0.5)
+    const displayBoardOneEndPosition = new THREE.Vector3(0.2,2.1,0.5)
     const displayBoardTwoEndPosition = new THREE.Vector3(0.2,1.7,0.5)
     const displayBoardThreeEndPosition = new THREE.Vector3(0.2,1.3,0.5)
     const displayBoardFourEndPosition = new THREE.Vector3(0.2,0.9,0.5)
@@ -1294,7 +1294,7 @@ export default function Room({...props}): JSX.Element {
                   props.title,
                   {
                     font: us_projectsFont,
-                    size: 0.12,
+                    size: 0.14,
                     height: 0.1,
                     curveSegments: 12,
                     bevelEnabled: true,
