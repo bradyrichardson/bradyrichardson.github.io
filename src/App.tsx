@@ -185,14 +185,9 @@ useEffect(() => {
           {subText}
         </Typography>
       </Box>}
-      
-      {/* Canvas */}
-      <Box sx={{padding: '20px', marginLeft: '50px'}}>
-        <MemoizedCanvas camera={camera} canvasRef={canvasRef} />
-      </Box>
 
       {/* Button Section */}
-        <Box sx={{
+      <Box sx={{
           marginTop: '50',
           marginBottom: '100px',
           textAlign: 'center',
@@ -201,7 +196,6 @@ useEffect(() => {
           justifyContent: 'center',
           alignItems: 'center',
           gap: '10px',
-          opacity: (us_scrollPosition < 1050) ? 0 : (us_scrollPosition - 1000) / 300
         }}>
           <Button
             variant="contained"
@@ -248,6 +242,235 @@ useEffect(() => {
             Give me feedback?
           </Button>
         </Box>
+      
+      {/* Canvas */}
+      <Box sx={{padding: '20px', marginLeft: '50px'}}>
+        <MemoizedCanvas camera={camera} canvasRef={canvasRef} />
+      </Box>
+
+      <Typography 
+        variant="h2" 
+        sx={{
+          fontWeight: 'bold',
+          marginBottom: '10px',
+          background: 'linear-gradient(45deg, #ffffff, #ffffff)',
+          backgroundClip: 'text',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          opacity: (us_scrollPosition < 800) ? 0 : (us_scrollPosition - 1100) / 300
+        }}
+      >
+        I also love data science and machine learning!
+      </Typography>
+
+      {/* EDA Demo Project */}
+      <Box sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '40px',
+        marginTop: '100px',
+        marginBottom: '100px',
+        maxWidth: '1200px',
+        width: '100%'
+      }}>
+        <Box sx={{ flex: 1 }}>
+          <img 
+            src="/src/assets/eda_demo.gif" 
+            alt="EDA Demo" 
+            style={{
+              width: '100%',
+              maxWidth: '500px',
+              borderRadius: '10px',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+            }}
+          />
+        </Box>
+        <Box sx={{ flex: 1, textAlign: 'left' }}>
+          <Typography 
+            variant="h4" 
+            sx={{
+              fontWeight: 'bold',
+              marginBottom: '15px',
+              color: '#ffffff',
+              background: 'linear-gradient(45deg,rgb(52, 219, 77),rgb(140, 244, 183))',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}
+          >
+            Finding the Perfect Song
+          </Typography>
+          <Typography 
+            variant="body1" 
+            sx={{
+              color: '#ffffff',
+              lineHeight: 1.7,
+              fontSize: '16px'
+            }}
+          >
+            I created an EDA tool for analyzing my Spotify data and comparing it to the top songs in the US and globally. I traind a model on this data and used it to predict which song I would like best in Spotify's newest releases.
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* Solar Demo Project */}
+      <Box sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '40px',
+        marginBottom: '100px',
+        maxWidth: '1200px',
+        width: '100%',
+        flexDirection: 'row-reverse'
+      }}>
+        <Box sx={{ flex: 1 }}>
+          <img 
+            src="/src/assets/solar-demo.gif" 
+            alt="Solar Demo" 
+            style={{
+              width: '100%',
+              maxWidth: '500px',
+              borderRadius: '10px',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+            }}
+          />
+        </Box>
+        <Box sx={{ flex: 1, textAlign: 'right' }}>
+          <Typography 
+            variant="h4" 
+            sx={{
+              fontWeight: 'bold',
+              marginBottom: '15px',
+              color: '#ffffff',
+              background: 'linear-gradient(45deg, #f39c12, #e74c3c)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}
+          >
+            Solar Predictions with LiDAR
+          </Typography>
+          <Typography 
+            variant="body1" 
+            sx={{
+              color: '#ffffff',
+              lineHeight: 1.7,
+              fontSize: '16px'
+            }}
+          >
+            An innovative machine learning project that analyzes solar energy patterns and 
+            predicts energy output based on environmental factors. This demonstrates my 
+            expertise in time series analysis, predictive modeling, and working with 
+            renewable energy datasets.
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* EDA Demo Project */}
+      <Box sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '40px',
+        marginBottom: '100px',
+        maxWidth: '1200px',
+        width: '100%'
+      }}>
+        <Box sx={{ flex: 1 }}>
+          <img 
+            src="/src/assets/poke-vision.gif" 
+            alt="Pokevision" 
+            style={{
+              width: '100%',
+              maxWidth: '500px',
+              borderRadius: '10px',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+            }}
+          />
+        </Box>
+        <Box sx={{ flex: 1, textAlign: 'left' }}>
+          <Typography 
+            variant="h4" 
+            sx={{
+              fontWeight: 'bold',
+              marginBottom: '15px',
+              color: '#ffffff',
+              background: 'linear-gradient(45deg, #ffb700, #fff200)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}
+          >
+            Pokemon and Computer Vision
+          </Typography>
+          <Typography 
+            variant="body1" 
+            sx={{
+              color: '#ffffff',
+              lineHeight: 1.7,
+              fontSize: '16px'
+            }}
+          >
+            A computer vision project that uses OpenCV to play Pokemon on an emulator with your fingers and a webcam.
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* Data Aggregation Project */}
+      <Box sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '40px',
+        marginBottom: '150px',
+        maxWidth: '1200px',
+        width: '100%'
+      }}>
+        <Box sx={{ flex: 1, textAlign: 'left' }}>
+          <Typography 
+            variant="h4" 
+            sx={{
+              fontWeight: 'bold',
+              marginBottom: '15px',
+              color: '#ffffff',
+              background: 'linear-gradient(45deg,rgb(17, 199, 205),rgb(154, 217, 234))',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}
+          >
+            Tweet Stock Analyzer
+          </Typography>
+          <Typography 
+            variant="body1" 
+            sx={{
+              color: '#ffffff',
+              lineHeight: 1.7,
+              fontSize: '16px'
+            }}
+          >
+            A binary classifier that combined stock market data with Twitter feeds 
+            to predict stock movements. This project showcased advanced feature engineering, 
+            sentiment analysis, and the ability to integrate multiple data sources for 
+            predictive modeling. For example, analyzing Elon Musk's tweets alongside Tesla's 
+            stock data to predict market movements.
+          </Typography>
+        </Box>
+        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <Box sx={{
+            width: '300px',
+            height: '200px',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            borderRadius: '10px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '2px dashed rgba(255, 255, 255, 0.3)'
+          }}>
+            <Typography sx={{ color: '#ffffff', opacity: 0.9, textAlign: 'center' }}>
+              Project files accidentally erased :(
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
     </Box>
   )
 }
