@@ -275,7 +275,7 @@ useEffect(() => {
       }}>
         <Box sx={{ flex: 1 }}>
           <img 
-            src="https://github.com/bradyrichardson/portfolio-assets/blob/main/eda_demo.gif" 
+            src="https://portfolio-assets-brady.s3.us-east-1.amazonaws.com/eda_demo.gif" 
             alt="EDA Demo" 
             style={{
               width: '100%',
@@ -325,7 +325,7 @@ useEffect(() => {
       }}>
         <Box sx={{ flex: 1 }}>
           <img 
-            src="https://github.com/bradyrichardson/portfolio-assets/blob/main/solar_demo.gif" 
+            src="https://portfolio-assets-brady.s3.us-east-1.amazonaws.com/solar_demo.gif" 
             alt="Solar Demo" 
             style={{
               width: '100%',
@@ -376,7 +376,7 @@ useEffect(() => {
       }}>
         <Box sx={{ flex: 1 }}>
           <img 
-            src="https://github.com/bradyrichardson/portfolio-assets/blob/main/poke-vision.gif" 
+            src="https://portfolio-assets-brady.s3.us-east-1.amazonaws.com/poke-vision.gif" 
             alt="Pokevision" 
             style={{
               width: '100%',
