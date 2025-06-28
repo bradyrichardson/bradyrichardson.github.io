@@ -275,7 +275,7 @@ useEffect(() => {
       }}>
         <Box sx={{ flex: 1 }}>
           <img 
-            src="/src/assets/eda_demo.gif" 
+            src="../src/assets/spotify-demo.gif" 
             alt="EDA Demo" 
             style={{
               width: '100%',
@@ -325,7 +325,7 @@ useEffect(() => {
       }}>
         <Box sx={{ flex: 1 }}>
           <img 
-            src="/src/assets/solar-demo.gif" 
+            src="../src/assets/solar-demo.gif" 
             alt="Solar Demo" 
             style={{
               width: '100%',
@@ -377,7 +377,7 @@ useEffect(() => {
       }}>
         <Box sx={{ flex: 1 }}>
           <img 
-            src="/src/assets/poke-vision.gif" 
+            src="../src/assets/poke-vision.gif" 
             alt="Pokevision" 
             style={{
               width: '100%',
