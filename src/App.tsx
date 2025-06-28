@@ -423,7 +423,7 @@ useEffect(() => {
         maxWidth: '1200px',
         width: '100%'
       }}>
-        <Box sx={{ flex: 1, textAlign: 'left' }}>
+        <Box sx={{ flex: 1, textAlign: 'right' }}>
           <Typography 
             variant="h4" 
             sx={{
