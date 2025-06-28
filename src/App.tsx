@@ -275,7 +275,7 @@ useEffect(() => {
       }}>
         <Box sx={{ flex: 1 }}>
           <img 
-            src="https://https://github.com/bradyrichardson/portfolio-assets/blob/main/eda_demo.gif" 
+            src="https://github.com/bradyrichardson/portfolio-assets/blob/main/eda_demo.gif" 
             alt="EDA Demo" 
             style={{
               width: '100%',
