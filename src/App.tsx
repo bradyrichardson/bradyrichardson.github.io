@@ -360,8 +360,7 @@ useEffect(() => {
           >
             An innovative machine learning project that analyzes solar energy patterns and 
             predicts energy output based on environmental factors. This demonstrates my 
-            expertise in time series analysis, predictive modeling, and working with 
-            renewable energy datasets.
+            ability to break down a complex problem and create a solution with no direction given.
           </Typography>
         </Box>
       </Box>
