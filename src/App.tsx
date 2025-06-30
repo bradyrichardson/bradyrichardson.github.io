@@ -244,7 +244,7 @@ useEffect(() => {
         </Box>
       
       {/* Canvas */}
-      <Box sx={{padding: '20px', marginLeft: '50px'}}>
+      <Box sx={{width: '100%', overflow: 'clip'}}>
         <MemoizedCanvas camera={camera} canvasRef={canvasRef} />
       </Box>
 
