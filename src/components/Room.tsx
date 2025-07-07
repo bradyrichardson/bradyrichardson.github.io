@@ -1215,8 +1215,8 @@ export default function Room({ ...props }): JSX.Element {
   });
 
   // Then modify the WindowFrame component
-  // @ts-expect-error directive here
   const WindowFrame = forwardRef(
+    // @ts-expect-error directive here
     ({ leftRef, rightRef, rotations, ...props }, ref): JSX.Element => {
       useFrame((_, delta) => {
         if (leftRef.current && rightRef.current) {

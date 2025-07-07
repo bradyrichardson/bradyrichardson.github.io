@@ -456,7 +456,7 @@ function App() {
           marginBottom: "150px",
           maxWidth: "1200px",
           width: "100%",
-          flexDirection: window.innerWidth < 768 ? "column" : "row",
+          flexDirection: window.innerWidth < 768 ? "column-reverse" : "row",
         }}
       >
         <Box sx={{ flex: 1, textAlign: "right" }}>
