@@ -274,6 +274,7 @@ function App() {
           backgroundClip: "text",
           WebkitBackgroundClip: "text",
           WebkitTextFillColor: "transparent",
+          fontSize: window.innerWidth < 768 ? "2rem" : "3rem",
           opacity:
             us_scrollPosition < 800 ? 0 : (us_scrollPosition - 1100) / 300,
         }}
@@ -285,6 +286,7 @@ function App() {
       <Box
         sx={{
           display: "flex",
+          flexDirection: window.innerWidth < 768 ? "column" : "row",
           alignItems: "center",
           gap: "40px",
           marginTop: "100px",
@@ -346,7 +348,7 @@ function App() {
           marginBottom: "100px",
           maxWidth: "1200px",
           width: "100%",
-          flexDirection: "row-reverse",
+          flexDirection: window.innerWidth < 768 ? "column" : "row-reverse",
         }}
       >
         <Box sx={{ flex: 1 }}>
@@ -401,6 +403,7 @@ function App() {
           marginBottom: "100px",
           maxWidth: "1200px",
           width: "100%",
+          flexDirection: window.innerWidth < 768 ? "column" : "row",
         }}
       >
         <Box sx={{ flex: 1 }}>
@@ -453,6 +456,7 @@ function App() {
           marginBottom: "150px",
           maxWidth: "1200px",
           width: "100%",
+          flexDirection: window.innerWidth < 768 ? "column" : "row",
         }}
       >
         <Box sx={{ flex: 1, textAlign: "right" }}>
