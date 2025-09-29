@@ -135,15 +135,17 @@ function App() {
   return (
     <Box
       sx={{
-        overflowY: "scroll",
-        overflowX: "clip",
+        // overflowY: "scroll",
+        // overflowX: "visible",
         backgroundColor: "rgba(0, 0, 0, 0)",
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        padding: "20px",
+        width: "95vw",
+        margin: 0,
+        padding: 0,
       }}
     >
       {/* Title Section */}
@@ -258,6 +260,30 @@ function App() {
         >
           Give me feedback?
         </Button>
+        <Button
+          variant="contained"
+          sx={{
+            backgroundColor: "#b16b15",
+            color: "white",
+            padding: "12px 30px",
+            fontSize: "16px",
+            fontWeight: "bold",
+            borderRadius: "25px",
+            textTransform: "none",
+            boxShadow: "0 4px 15px rgba(52, 152, 219, 0.3)",
+            transition: "all 0.3s ease",
+            "&:hover": {
+              backgroundColor: "#b15b15",
+              transform: "translateY(-2px)",
+              boxShadow: "0 6px 20px rgba(52, 152, 219, 0.4)",
+            },
+          }}
+          onClick={() =>
+            window.open("https://enterprise.ghostverified.com", "_blank")
+          }
+        >
+          Check out my current project
+        </Button>
       </Box>
 
       {/* Canvas */}
@@ -268,8 +294,9 @@ function App() {
       <Typography
         variant="h2"
         sx={{
+          marginTop: "100px",
           fontWeight: "bold",
-          marginBottom: "10px",
+          marginBottom: "100px",
           background: "linear-gradient(45deg, #ffffff, #ffffff)",
           backgroundClip: "text",
           WebkitBackgroundClip: "text",
